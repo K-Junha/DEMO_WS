@@ -1,0 +1,142 @@
+:root {
+  --bg-base:       #0f172b;
+  --bg-card:       #1d293d;
+  --bg-card-hover: #243447;
+  --border:        #314158;
+  --text-primary:  #e2e8f0;
+  --text-muted:    #94a3b8;
+  --accent:        #615fff;
+  --green:         #22c55e;
+  --red:           #ef4444;
+  --amber:         #f59e0b;
+  --blue:          #3b82f6;
+  --emerald:       #10b981;
+
+  --lis-bg:        rgba(16,185,129,0.12);
+  --lis-border:    rgba(16,185,129,0.35);
+  --tas-bg:        rgba(245,158,11,0.12);
+  --tas-border:    rgba(245,158,11,0.35);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  background: var(--bg-base) !important;
+  color: var(--text-primary);
+  font-family: 'Space Grotesk', 'Inter', sans-serif;
+}
+
+/* ── Quasar overrides ── */
+.q-layout { background: var(--bg-base) !important; }
+.q-page-container { background: var(--bg-base) !important; }
+.q-page { background: var(--bg-base) !important; }
+
+.q-card {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4) !important;
+}
+
+.q-toolbar { background: var(--bg-card) !important; border-bottom: 1px solid var(--border); }
+.q-header  { background: var(--bg-card) !important; box-shadow: none !important; }
+
+.q-btn.bg-primary { background: var(--accent) !important; }
+
+/* ── LED ── */
+.led {
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.led.green {
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green);
+}
+.led.gray  { background: #4b5563; }
+.led.red   { background: var(--red); box-shadow: 0 0 6px var(--red); }
+
+/* ── Device card ── */
+.device-card {
+  transition: opacity 0.5s ease, filter 0.5s ease, box-shadow 0.3s ease;
+  border-radius: 10px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+}
+.device-card.inactive { opacity: 0.28; filter: grayscale(80%); }
+.device-card.active   { opacity: 1; filter: none; box-shadow: 0 0 0 1px rgba(97,95,255,0.3); }
+
+/* ── Protocol badges ── */
+.badge-rs232    { background: rgba(245,158,11,0.18); color: #f59e0b; border: 1px solid rgba(245,158,11,0.4); }
+.badge-rs485    { background: rgba(59,130,246,0.18); color: #3b82f6; border: 1px solid rgba(59,130,246,0.4); }
+.badge-ethernet { background: rgba(16,185,129,0.18); color: #10b981; border: 1px solid rgba(16,185,129,0.4); }
+.badge-usb      { background: rgba(139,92,246,0.18); color: #8b5cf6; border: 1px solid rgba(139,92,246,0.4); }
+
+/* ── Composition table wrapper ── */
+.table-wrap {
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  overflow-x: auto;
+}
+
+.comp-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 13px;
+  color: var(--text-primary);
+  background: var(--bg-card);
+}
+
+.comp-table th {
+  background: #162032;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.comp-table td {
+  padding: 11px 14px;
+  border-bottom: 1px solid rgba(49,65,88,0.6);
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.comp-table tbody tr:hover td { background: var(--bg-card-hover); }
+.comp-table tbody tr:last-child td { border-bottom: none; }
+
+.comp-table th.lis-group { background: rgba(16,185,129,0.15); color: #10b981; border-bottom: 1px solid var(--lis-border); }
+.comp-table th.tas-group { background: rgba(245,158,11,0.15);  color: #f59e0b; border-bottom: 1px solid var(--tas-border); }
+.comp-table td.lis-group { background: var(--lis-bg); }
+.comp-table td.tas-group { background: var(--tas-bg); }
+
+/* ── Global target card ── */
+.target-card {
+  background: linear-gradient(135deg, rgba(97,95,255,0.08), rgba(16,185,129,0.08));
+  border: 1px solid rgba(97,95,255,0.3);
+  border-radius: 10px;
+  padding: 16px 24px;
+}
+
+/* ── Experiment banner ── */
+.exp-banner {
+  background: rgba(97,95,255,0.12);
+  border: 1px solid rgba(97,95,255,0.3);
+  border-radius: 8px;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+.exp-banner.complete {
+  background: rgba(16,185,129,0.10);
+  border-color: rgba(16,185,129,0.3);
+}

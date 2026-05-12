@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.quasar/
+.DS_Store
+*.local
+
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.env
+
+*.log
