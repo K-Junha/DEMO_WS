@@ -1,14 +1,23 @@
+// 실험 상태 관리 스토어
+// 상태 머신: idle → designed → running → done
+//   idle    : 초기 상태 (실험 설계 전)
+//   designed: 조성 설계 완료, 시작 버튼 활성화 대기
+//   running : 실험 진행 중 (9단계 장치 순차 동작)
+//   done    : 실험 완료, 측정값·LIS·TAS 저장됨
+
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { Sample } from './config'
 
 export type ExperimentState = 'idle' | 'designed' | 'running' | 'done'
 
+// 현재 진행 중인 장치 인덱스와 단계(running/complete)
 export interface ExperimentPhase {
   deviceIndex: number
   phase: 'running' | 'complete'
 }
 
+// 실험 테이블의 한 행 (조성 1개 실험 결과)
 export interface SampleRow {
   id: string
   composition: string
@@ -17,26 +26,23 @@ export interface SampleRow {
   lis: number | null
   tas: number | null
   experimentDone: boolean
-  sourceId: string | null
+  sourceId: string | null  // 연결된 YAML 샘플 ID (측정값·실험 데이터 조회에 사용)
 }
 
 export const useExperimentStore = defineStore('experiment', () => {
   const state = ref<ExperimentState>('idle')
   const currentPhase = ref<ExperimentPhase>({ deviceIndex: 0, phase: 'running' })
   const rows = ref<SampleRow[]>([])
-  let runId = 0
 
+  // runId: setTimeout 체인의 stale 실행 방지용 단조 증가 카운터
+  // 리셋/새 실험 시작 시 증가 → 이전 타이머 콜백이 체크 후 자동 종료됨
+  let runId = 0
   const currentRunId = computed(() => runId)
 
-  function getRunId() {
-    return runId
-  }
+  function getRunId() { return runId }
+  function incrementRunId() { runId++; return runId }
 
-  function incrementRunId() {
-    runId++
-    return runId
-  }
-
+  // 새 조성 행 추가 → state를 'designed'로 전환
   function design(row: Omit<SampleRow, 'measurement' | 'lis' | 'tas' | 'experimentDone'>) {
     rows.value.push({
       ...row,
@@ -48,16 +54,19 @@ export const useExperimentStore = defineStore('experiment', () => {
     state.value = 'designed'
   }
 
+  // 실험 시작: state를 'running'으로 전환, 장치 인덱스 초기화
   function startExperiment() {
     if (state.value !== 'designed') return
     state.value = 'running'
     currentPhase.value = { deviceIndex: 0, phase: 'running' }
   }
 
+  // ExperimentBanner의 애니메이션 루프가 호출하여 현재 진행 장치 갱신
   function setPhase(deviceIndex: number, phase: 'running' | 'complete') {
     currentPhase.value = { deviceIndex, phase }
   }
 
+  // 실험 완료: 측정값·LIS·TAS를 마지막 행에 저장, state를 'done'으로 전환
   function completeExperiment(measurement: SampleRow['measurement'], lis: number, tas: number) {
     const lastRow = rows.value[rows.value.length - 1]
     if (lastRow) {
@@ -69,8 +78,9 @@ export const useExperimentStore = defineStore('experiment', () => {
     state.value = 'done'
   }
 
+  // 튜닝 버튼 클릭 시: YAML의 다음 샘플을 새 행으로 추가 → state를 'designed'로 전환
   function addAutoTuneRow(yamlSample: Sample) {
-    const nextRow: SampleRow = {
+    rows.value.push({
       id: yamlSample.id,
       composition: yamlSample.composition,
       predicted: { ...yamlSample.predicted },
@@ -79,11 +89,11 @@ export const useExperimentStore = defineStore('experiment', () => {
       tas: null,
       experimentDone: false,
       sourceId: yamlSample.id
-    }
-    rows.value.push(nextRow)
+    })
     state.value = 'designed'
   }
 
+  // 전체 초기화: runId를 증가시켜 진행 중인 타이머 체인 무효화
   function reset() {
     runId++
     state.value = 'idle'
@@ -92,17 +102,8 @@ export const useExperimentStore = defineStore('experiment', () => {
   }
 
   return {
-    state,
-    currentPhase,
-    rows,
-    currentRunId,
-    getRunId,
-    incrementRunId,
-    design,
-    startExperiment,
-    setPhase,
-    completeExperiment,
-    addAutoTuneRow,
-    reset
+    state, currentPhase, rows, currentRunId,
+    getRunId, incrementRunId,
+    design, startExperiment, setPhase, completeExperiment, addAutoTuneRow, reset
   }
 })

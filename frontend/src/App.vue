@@ -1,5 +1,6 @@
 <template>
   <q-layout view="hHh lpR fFf">
+    <!-- 상단 헤더: 앱 제목 + RESET 버튼 -->
     <q-header>
       <q-toolbar style="min-height: 52px">
         <q-icon name="science" size="22px" color="indigo-4" class="q-mr-sm" />
@@ -7,8 +8,7 @@
           WS LAB PILOT — DEMO DAY
         </q-toolbar-title>
         <q-btn
-          flat
-          dense
+          flat dense
           label="RESET"
           icon="refresh"
           color="red-4"
@@ -20,6 +20,8 @@
 
     <q-page-container>
       <q-page class="q-pa-md" style="background: #0f172b">
+
+        <!-- 로딩 중 -->
         <template v-if="configStore.loading">
           <div class="row justify-center items-center" style="height: 60vh">
             <q-spinner color="indigo-4" size="3em" />
@@ -27,14 +29,16 @@
           </div>
         </template>
 
+        <!-- 로드 실패 -->
         <template v-else-if="configStore.error">
           <q-banner class="bg-red-10 text-white rounded-borders">
             설정 로드 실패: {{ configStore.error }}
           </q-banner>
         </template>
 
+        <!-- 정상: 3개 패널 세로 배치 -->
         <template v-else>
-          <!-- Row 1: Connected Devices -->
+          <!-- 패널 1: 장치 연결 현황 -->
           <q-card flat class="q-mb-md" style="border-radius: 12px">
             <q-card-section class="q-pb-sm">
               <div class="row items-center q-mb-sm">
@@ -47,7 +51,7 @@
             </q-card-section>
           </q-card>
 
-          <!-- Row 2: Glass Composition -->
+          <!-- 패널 2: 조성 실험 테이블 + 실험 설계/시작 버튼 -->
           <q-card flat class="q-mb-md" style="border-radius: 12px">
             <q-card-section>
               <div class="row items-center q-mb-md">
@@ -55,18 +59,18 @@
                   Glass Composition Samples
                 </span>
                 <q-space />
+                <!-- 실험 설계: idle 상태에서만 활성화 -->
                 <q-btn
-                  unelevated
-                  size="sm"
+                  unelevated size="sm"
                   label="실험 설계"
                   color="indigo"
                   :disable="experimentStore.state !== 'idle'"
                   style="border-radius: 6px; margin-right: 8px"
                   @click="showModal = true"
                 />
+                <!-- 실험 시작: designed 상태(설계 완료 후)에서만 활성화 -->
                 <q-btn
-                  unelevated
-                  size="sm"
+                  unelevated size="sm"
                   label="실험 시작"
                   color="positive"
                   :disable="experimentStore.state !== 'designed'"
@@ -78,7 +82,7 @@
             </q-card-section>
           </q-card>
 
-          <!-- Row 3: Score Trend -->
+          <!-- 패널 3: LIS/TAS 누적 추세 그래프 -->
           <q-card flat style="border-radius: 12px">
             <q-card-section>
               <ScoreTrend />
@@ -88,6 +92,7 @@
       </q-page>
     </q-page-container>
 
+    <!-- 실험 설계 모달 (v-model로 열기/닫기 제어) -->
     <ExperimentDesignModal v-model="showModal" />
   </q-layout>
 </template>
@@ -107,11 +112,13 @@ const experimentStore = useExperimentStore()
 const trendStore = useTrendStore()
 const showModal = ref(false)
 
+// 실험 + 트렌드 데이터를 모두 초기화 (장치 재점등은 experiment watch가 자동 처리)
 function handleReset() {
   experimentStore.reset()
   trendStore.reset()
 }
 
+// 앱 마운트 시 백엔드에서 YAML 설정 로드
 onMounted(() => {
   configStore.fetchConfig()
 })

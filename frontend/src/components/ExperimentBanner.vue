@@ -1,6 +1,7 @@
 <template>
+  <!-- 실험 진행 중일 때만 배너 표시 -->
   <div v-if="experimentStore.state === 'running'" class="exp-stepper">
-    <!-- Top row: label + progress bar -->
+    <!-- 상단: 제목 + 진행률 바 -->
     <div class="stepper-header">
       <q-icon name="science" size="13px" color="indigo-4" />
       <span>실험 진행 중</span>
@@ -12,7 +13,7 @@
       </span>
     </div>
 
-    <!-- Steps -->
+    <!-- 9단계 스텝퍼: 완료(초록) / 진행중(인디고 스피너) / 대기(반투명) -->
     <div class="steps-row">
       <div
         v-for="(d, i) in DEVICES"
@@ -50,6 +51,7 @@ const experimentStore = useExperimentStore()
 const configStore = useConfigStore()
 const trendStore = useTrendStore()
 
+// 9개 장치 순서 (YAML devices 순서와 일치해야 함)
 const DEVICES = [
   { name: '저울',         icon: 'balance' },
   { name: '믹서',         icon: 'rotate_right' },
@@ -65,31 +67,36 @@ const DEVICES = [
 const curDeviceIdx = computed(() => experimentStore.currentPhase.deviceIndex)
 const curPhase     = computed(() => experimentStore.currentPhase.phase)
 
+// 진행률: 각 장치를 running(0.5) → complete(1.0)로 세분화하여 부드럽게 표시
 const progressPct = computed(() => {
   if (experimentStore.state !== 'running') return 0
   const step = curDeviceIdx.value + (curPhase.value === 'complete' ? 1 : 0.5)
   return Math.min(100, (step / DEVICES.length) * 100)
 })
 
-/* ── Animation engine ── */
+// YAML 타이밍 설정을 가져오는 헬퍼 (기본값 포함)
 function timing() {
   const t = configStore.config?.timing
   return {
-    running: t?.experiment_running_ms ?? 2000,
+    running:  t?.experiment_running_ms  ?? 2000,
     complete: t?.experiment_complete_ms ?? 1000,
-    gap:     t?.experiment_gap_ms ?? 500,
+    gap:      t?.experiment_gap_ms      ?? 500,
   }
 }
 
+// state가 'running'이 될 때마다 새 실험 애니메이션 시작
+// incrementRunId()로 이전 타이머 체인을 무효화하여 중복 실행 방지
 watch(
   () => experimentStore.state,
   state => { if (state === 'running') runExperiment(experimentStore.incrementRunId()) }
 )
 
+// 장치별 순차 애니메이션: running → complete → (gap) → 다음 장치
 function runExperiment(id: number) {
   const t = timing()
 
   function step(i: number) {
+    // runId가 다르면 리셋/재시작된 것이므로 중단
     if (id !== experimentStore.getRunId()) return
     if (i >= DEVICES.length) { finishExperiment(); return }
 
@@ -112,6 +119,7 @@ function runExperiment(id: number) {
   step(0)
 }
 
+// 모든 장치 완료 후 호출: 측정값 저장, LIS/TAS 계산, trend 누적
 function finishExperiment() {
   const cfg = configStore.config
   if (!cfg) return
@@ -119,6 +127,7 @@ function finishExperiment() {
   const lastRow = rows[rows.length - 1]
   if (!lastRow) return
 
+  // sourceId로 YAML 샘플을 찾아 실제 측정값 사용; 없으면 예측값으로 대체
   const srcSample = cfg.samples.find(s => s.id === lastRow.sourceId || s.id === lastRow.id)
   const measurement = srcSample?.measurement ?? lastRow.predicted
 
@@ -131,7 +140,6 @@ function finishExperiment() {
     lis, tas
   )
   trendStore.addEntry(lis, tas)
-
 }
 </script>
 

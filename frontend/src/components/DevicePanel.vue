@@ -1,4 +1,5 @@
 <template>
+  <!-- 9개 장치 카드를 가로로 나열 -->
   <div class="row q-gutter-sm flex-wrap">
     <DeviceCard
       v-for="(device, i) in devices"
@@ -20,64 +21,84 @@ import DeviceCard from './DeviceCard.vue'
 const configStore = useConfigStore()
 const experimentStore = useExperimentStore()
 
+// 순차 점등 진행 상태: -1이면 모두 비활성, i이면 0~i 인덱스 카드가 활성화
 const activeIndex = ref(-1)
+
+// 로컬 runId: 리셋 또는 설정 재로드 시 이전 setTimeout 체인 무효화
 let runId = 0
 
 const devices = computed(() => configStore.config?.devices ?? [])
 
+// 장치 카드를 device_activation_interval_ms 간격으로 순차 점등
 function startActivation() {
   const id = ++runId
   activeIndex.value = -1
   const interval = configStore.config?.timing.device_activation_interval_ms ?? 1000
   devices.value.forEach((_, i) => {
     setTimeout(() => {
-      if (id !== runId) return
+      if (id !== runId) return  // 재시작됐으면 중단
       activeIndex.value = i
     }, (i + 1) * interval)
   })
 }
 
+// 실험이 idle로 돌아올 때(리셋) 재점등, 앱 첫 로드 시에도 즉시 실행
 watch(
   () => experimentStore.state,
   state => { if (state === 'idle') startActivation() },
   { immediate: true }
 )
+// 설정이 새로 로드되면 장치 목록이 바뀔 수 있으므로 재점등
 watch(() => configStore.config, cfg => { if (cfg) startActivation() })
 
-function isStepReached(deviceIdx: number): boolean {
-  const { state, currentPhase, rows } = experimentStore
-  if (state === 'running' || state === 'done') {
-    return currentPhase.deviceIndex >= deviceIdx
-  }
-  // After auto-tune adds next row (state → 'designed'), keep showing previous experiment's device data
-  if (state === 'designed' && rows.some(r => r.experimentDone)) {
-    return true
-  }
-  return false
-}
-
+/**
+ * 현재 표시할 샘플 데이터를 결정
+ * - running/done 상태: 마지막 행의 sourceId로 샘플 조회
+ * - designed 상태 + 완료된 행 있음: 마지막 완료 행의 샘플 조회
+ *   (auto-tune이 state를 'designed'로 되돌려도 이전 실험 데이터를 유지)
+ */
 function getSample() {
   const rows = experimentStore.rows
-  // When 'designed' with completed rows, show the last completed experiment (not the pending auto-tune row)
+
   if (experimentStore.state === 'designed') {
+    // 튜닝 후 state='designed'가 돼도 직전 완료 실험 데이터를 계속 표시
     const doneRow = [...rows].reverse().find(r => r.experimentDone)
     if (doneRow) {
       const srcId = doneRow.sourceId ?? doneRow.id
       return configStore.config?.samples.find(s => s.id === srcId) ?? null
     }
   }
+
   const lastRow = rows[rows.length - 1]
   if (!lastRow) return null
   const srcId = lastRow.sourceId ?? lastRow.id
   return configStore.config?.samples.find(s => s.id === srcId) ?? null
 }
 
+/**
+ * 해당 장치 인덱스가 현재 실험에서 "이미 도달한 단계"인지 판단
+ * - running/done: currentPhase.deviceIndex와 비교
+ * - designed + 완료 행 있음: 이전 실험이 전체 완료됐으므로 모든 장치 표시
+ */
+function isStepReached(deviceIdx: number): boolean {
+  const { state, currentPhase, rows } = experimentStore
+  if (state === 'running' || state === 'done') {
+    return currentPhase.deviceIndex >= deviceIdx
+  }
+  if (state === 'designed' && rows.some(r => r.experimentDone)) {
+    return true
+  }
+  return false
+}
+
+// 장치 카드에 전달할 실험 파라미터 (저울 세팅값, 전기로 온도 등)
 function expDataFor(deviceIdx: number): SampleExperiment | null {
   if (activeIndex.value < deviceIdx) return null
   if (!isStepReached(deviceIdx)) return null
   return getSample()?.experiment ?? null
 }
 
+// 장치 카드에 전달할 측정값 (DTA/DSC → Tg, 딜라토미터 → CTE 등)
 function measurementFor(deviceIdx: number): SampleMeasurement | null {
   if (activeIndex.value < deviceIdx) return null
   if (!isStepReached(deviceIdx)) return null
