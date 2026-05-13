@@ -27,7 +27,7 @@ const DARK_LAYOUT = {
   font:  { color: '#94a3b8', size: 12 },
   xaxis: { title: { text: 'Num of Samples', font: { color: '#64748b', size: 11 } }, ...AXIS_BASE },
   yaxis: { rangemode: 'tozero' as const, ...AXIS_BASE },
-  margin: { t: 44, b: 48, l: 60, r: 20 },
+  margin: { t: 58, b: 48, l: 60, r: 20 },
 }
 
 async function loadPlotly() {
@@ -55,7 +55,7 @@ function renderCharts() {
       fill: 'tozeroy', fillcolor: 'rgba(59,130,246,0.08)',
       name: 'LIS cumulative',
     }],
-    { ...DARK_LAYOUT, title: { text: '예측 모델 영향력 추이<br><span style="font-size:11px">LIS: Learning Impact Score</span>', font: { color: '#e2e8f0', size: 14 } }, yaxis: YAXIS_LIS },
+    { ...DARK_LAYOUT, title: { text: '예측 모델 영향력 추이<br><span style="font-size:11px">Learning Impact Score</span>', font: { color: '#e2e8f0', size: 14 } }, yaxis: YAXIS_LIS },
     { responsive: true }
   )
 
@@ -69,7 +69,7 @@ function renderCharts() {
       fill: 'tozeroy', fillcolor: 'rgba(16,185,129,0.08)',
       name: 'TAS per experiment',
     }],
-    { ...DARK_LAYOUT, title: { text: '목표 달성도 추이<br><span style="font-size:11px">TAS: Target Achievement Score</span>', font: { color: '#e2e8f0', size: 14 } }, yaxis: YAXIS_TAS },
+    { ...DARK_LAYOUT, title: { text: '목표 달성도 추이<br><span style="font-size:11px">Target Achievement Score</span>', font: { color: '#e2e8f0', size: 14 } }, yaxis: YAXIS_TAS },
     { responsive: true }
   )
 }
