@@ -1,5 +1,5 @@
 <template>
-  <div class="device-card q-pa-sm" :class="active ? 'active' : 'inactive'" style="min-width: 158px; max-width: 183px">
+  <div class="device-card q-pa-sm" :class="active ? 'active' : 'inactive'" style="min-width: 175px; max-width: 210px">
     <!-- Header: LED + name [space] icon -->
     <div class="row items-center q-mb-xs" style="gap: 5px">
       <span class="led" :class="active ? (device.connected ? 'green' : 'red') : 'gray'" />

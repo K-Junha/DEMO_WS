@@ -202,20 +202,14 @@ const linkedSample = computed(() => {
   return samples[experimentStore.rows.length % samples.length] ?? null
 })
 
-// 예측 버튼: 1초 로딩 후 목표치 ±2.5% 범위 내 값 생성
-// "AI 모델은 항상 목표에 근접한 조성을 추천한다"는 시나리오를 표현
+// 예측 버튼: 1초 로딩 후 YAML 연결 샘플의 predicted 값을 표시
+// BO 모델이 현재 조성에 대해 예측한 값 (초기≈목표치, 학습될수록 실측에 수렴)
 function runPrediction() {
   predicting.value = true
   setTimeout(() => {
-    const gt = configStore.config?.global_target
-    if (gt) {
-      const noise = (v: number) => v * (1 + (Math.random() * 2 - 1) * 0.025)
-      predictedVals.value = {
-        tg:               Math.round(noise(gt.tg)),
-        cte:              Math.round(noise(gt.cte) * 10) / 10,
-        dielectric:       Math.round(noise(gt.dielectric) * 10) / 10,
-        dielectric_const: Math.round(noise(gt.dielectric_const) * 100) / 100,
-      }
+    const s = linkedSample.value
+    if (s) {
+      predictedVals.value = { ...s.predicted }
     }
     predicting.value   = false
     hasPredicted.value = true

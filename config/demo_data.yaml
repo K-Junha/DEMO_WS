@@ -100,23 +100,32 @@ devices:
     connected: true
     measures: [유전율, 유전상수]
 
-# ── 수렴 시나리오 ──
-# S-001 → S-010: 실험 반복할수록 예측/측정값이 목표치에 수렴
-# 목표: Tg=580°C, CTE=7.2, 유전율=5.8, 유전상수=2.6
-# LIS(예측정확도): 0.85 → 0.999 / TAS(목표근접도): 0.45 → 0.996
+# ── BO 기반 수렴 시나리오 ──────────────────────────────────────────────────
+# predicted : 현재 BO 모델이 예측한 값 (초기=낙관적≈목표치, 후반=실측 근접)
+# measurement: 실제 실험 측정값 (초기=목표와 멀고 부동소수, 후반=목표 수렴)
+#
+# LIS (예측 정확도): 0.63 → 0.67 → 0.65 → 0.91 → 0.96 → 0.98 → 0.99 → 0.99 → 1.0 → 1.0
+# TAS (목표 달성도): 0.42 → 0.50 → 0.45 → 0.62 → 0.57↓ → 0.77 → 0.86 → 0.83↓ → 0.93 → 0.99
+#
+# S-003: 방향 실패로 LIS·TAS 동반 하락
+# S-004: 모델 캘리브레이션 돌파 → LIS 0.65→0.91 급등
+# S-005: LIS 계속 오르는데 TAS는 오히려 하락 (모델 정확↑, 그러나 조성이 목표 도달 미달)
+# S-008: LIS 유지, TAS 소폭 하락
 samples:
+
+  # ── S-001: 출발점. 모델 낙관적(pred≈목표), 실측은 목표와 멀다 ────────────
   - id: S-001
     composition: "SiO2:70, Al2O3:12, B2O3:18"
     predicted:
-      tg: 510.0
-      cte: 9.8
-      dielectric: 7.2
-      dielectric_const: 4.1
+      tg: 576.2
+      cte: 7.18
+      dielectric: 5.76
+      dielectric_const: 2.57
     measurement:
-      tg: 458.0
-      cte: 11.5
-      dielectric: 8.3
-      dielectric_const: 5.1
+      tg: 456.3
+      cte: 11.84
+      dielectric: 8.47
+      dielectric_const: 5.28
     next_composition: "SiO2:70, Al2O3:14, B2O3:16"
     experiment:
       scale:
@@ -126,7 +135,7 @@ samples:
         operation_time: "30min"
       furnace:
         steps:
-          - { step: 1, target_temp: 750,  measured_temp: 748,  hold_time: "30min", heating_rate: 5  }
+          - { step: 1, target_temp: 750,  measured_temp: 747,  hold_time: "30min", heating_rate: 5  }
           - { step: 2, target_temp: 1350, measured_temp: 1347, hold_time: "60min", heating_rate: 10 }
       annealing:
         target_temp: 450
@@ -135,18 +144,19 @@ samples:
       press:
         pressure: 18
 
+  # ── S-002: 소폭 개선. 모델 여전히 낙관적 ────────────────────────────────
   - id: S-002
     composition: "SiO2:70, Al2O3:14, B2O3:16"
     predicted:
-      tg: 518.0
-      cte: 10.1
-      dielectric: 7.5
-      dielectric_const: 4.3
+      tg: 580.5
+      cte: 7.21
+      dielectric: 5.81
+      dielectric_const: 2.61
     measurement:
-      tg: 483.0
-      cte: 10.6
-      dielectric: 7.8
-      dielectric_const: 4.5
+      tg: 479.8
+      cte: 11.12
+      dielectric: 8.05
+      dielectric_const: 4.91
     next_composition: "SiO2:70, Al2O3:16, B2O3:14"
     experiment:
       scale:
@@ -157,7 +167,38 @@ samples:
       furnace:
         steps:
           - { step: 1, target_temp: 750,  measured_temp: 749,  hold_time: "30min", heating_rate: 5  }
-          - { step: 2, target_temp: 1380, measured_temp: 1378, hold_time: "60min", heating_rate: 10 }
+          - { step: 2, target_temp: 1370, measured_temp: 1368, hold_time: "60min", heating_rate: 10 }
+      annealing:
+        target_temp: 460
+        stop_temp: 50
+        time: "120min"
+      press:
+        pressure: 18
+
+  # ── S-003: 조성 방향 실패 → LIS·TAS 동반 하락 ───────────────────────────
+  - id: S-003
+    composition: "SiO2:70, Al2O3:16, B2O3:14"
+    predicted:
+      tg: 574.8
+      cte: 7.16
+      dielectric: 5.78
+      dielectric_const: 2.59
+    measurement:
+      tg: 463.2
+      cte: 11.53
+      dielectric: 8.31
+      dielectric_const: 5.07
+    next_composition: "SiO2:70, Al2O3:18, B2O3:12"
+    experiment:
+      scale:
+        target_weight: 150.0
+        current_weight: 150.3
+      mixer:
+        operation_time: "32min"
+      furnace:
+        steps:
+          - { step: 1, target_temp: 760,  measured_temp: 758,  hold_time: "30min", heating_rate: 5  }
+          - { step: 2, target_temp: 1375, measured_temp: 1371, hold_time: "60min", heating_rate: 10 }
       annealing:
         target_temp: 460
         stop_temp: 50
@@ -165,19 +206,82 @@ samples:
       press:
         pressure: 19
 
-  - id: S-003
-    composition: "SiO2:70, Al2O3:16, B2O3:14"
+  # ── S-004: 모델 캘리브레이션 돌파 → LIS 0.65→0.91 급등 ─────────────────
+  - id: S-004
+    composition: "SiO2:70, Al2O3:18, B2O3:12"
     predicted:
-      tg: 530.0
-      cte: 9.8
-      dielectric: 7.5
-      dielectric_const: 4.0
+      tg: 545.3
+      cte: 9.12
+      dielectric: 7.08
+      dielectric_const: 3.82
     measurement:
-      tg: 471.0
-      cte: 10.9
-      dielectric: 8.0
-      dielectric_const: 4.8
-    next_composition: "SiO2:70, Al2O3:18, B2O3:12"
+      tg: 511.6
+      cte: 10.23
+      dielectric: 7.62
+      dielectric_const: 4.34
+    next_composition: "SiO2:70, Al2O3:20, B2O3:10"
+    experiment:
+      scale:
+        target_weight: 150.0
+        current_weight: 149.7
+      mixer:
+        operation_time: "30min"
+      furnace:
+        steps:
+          - { step: 1, target_temp: 790,  measured_temp: 788,  hold_time: "30min", heating_rate: 5  }
+          - { step: 2, target_temp: 1410, measured_temp: 1408, hold_time: "60min", heating_rate: 10 }
+      annealing:
+        target_temp: 480
+        stop_temp: 50
+        time: "120min"
+      press:
+        pressure: 20
+
+  # ── S-005: LIS↑(0.96) TAS↓(0.57) — 모델은 정확해졌지만 조성 성능 미달 ──
+  - id: S-005
+    composition: "SiO2:70, Al2O3:20, B2O3:10"
+    predicted:
+      tg: 512.7
+      cte: 10.18
+      dielectric: 7.58
+      dielectric_const: 4.31
+    measurement:
+      tg: 498.4
+      cte: 10.61
+      dielectric: 7.84
+      dielectric_const: 4.53
+    next_composition: "SiO2:71, Al2O3:20, B2O3:9"
+    experiment:
+      scale:
+        target_weight: 150.0
+        current_weight: 150.4
+      mixer:
+        operation_time: "30min"
+      furnace:
+        steps:
+          - { step: 1, target_temp: 800,  measured_temp: 799,  hold_time: "30min", heating_rate: 5  }
+          - { step: 2, target_temp: 1430, measured_temp: 1427, hold_time: "60min", heating_rate: 10 }
+      annealing:
+        target_temp: 490
+        stop_temp: 50
+        time: "120min"
+      press:
+        pressure: 20
+
+  # ── S-006: LIS·TAS 동반 회복 ────────────────────────────────────────────
+  - id: S-006
+    composition: "SiO2:71, Al2O3:20, B2O3:9"
+    predicted:
+      tg: 538.4
+      cte: 9.43
+      dielectric: 6.87
+      dielectric_const: 3.67
+    measurement:
+      tg: 537.9
+      cte: 9.08
+      dielectric: 6.93
+      dielectric_const: 3.62
+    next_composition: "SiO2:71, Al2O3:21, B2O3:8"
     experiment:
       scale:
         target_weight: 150.0
@@ -186,58 +290,60 @@ samples:
         operation_time: "30min"
       furnace:
         steps:
-          - { step: 1, target_temp: 780,  measured_temp: 779,  hold_time: "30min", heating_rate: 5  }
-          - { step: 2, target_temp: 1400, measured_temp: 1398, hold_time: "60min", heating_rate: 10 }
+          - { step: 1, target_temp: 810,  measured_temp: 810,  hold_time: "30min", heating_rate: 5  }
+          - { step: 2, target_temp: 1460, measured_temp: 1458, hold_time: "60min", heating_rate: 10 }
       annealing:
-        target_temp: 470
+        target_temp: 500
         stop_temp: 50
         time: "120min"
       press:
-        pressure: 20
+        pressure: 21
 
-  - id: S-004
-    composition: "SiO2:70, Al2O3:18, B2O3:12"
+  # ── S-007: 안정권 진입 ───────────────────────────────────────────────────
+  - id: S-007
+    composition: "SiO2:71, Al2O3:21, B2O3:8"
     predicted:
-      tg: 535.0
-      cte: 9.5
-      dielectric: 7.0
-      dielectric_const: 3.8
+      tg: 558.6
+      cte: 8.37
+      dielectric: 6.44
+      dielectric_const: 3.12
     measurement:
-      tg: 508.0
-      cte: 10.0
-      dielectric: 7.4
-      dielectric_const: 4.2
-    next_composition: "SiO2:70, Al2O3:19, B2O3:11"
+      tg: 556.1
+      cte: 8.43
+      dielectric: 6.51
+      dielectric_const: 3.17
+    next_composition: "SiO2:72, Al2O3:21, B2O3:7"
     experiment:
       scale:
         target_weight: 150.0
         current_weight: 149.9
       mixer:
-        operation_time: "32min"
+        operation_time: "30min"
       furnace:
         steps:
-          - { step: 1, target_temp: 800,  measured_temp: 799,  hold_time: "30min", heating_rate: 5  }
-          - { step: 2, target_temp: 1420, measured_temp: 1419, hold_time: "60min", heating_rate: 10 }
+          - { step: 1, target_temp: 825,  measured_temp: 824,  hold_time: "30min", heating_rate: 5  }
+          - { step: 2, target_temp: 1490, measured_temp: 1489, hold_time: "60min", heating_rate: 10 }
       annealing:
-        target_temp: 490
+        target_temp: 515
         stop_temp: 50
         time: "120min"
       press:
-        pressure: 20
+        pressure: 21
 
-  - id: S-005
-    composition: "SiO2:70, Al2O3:19, B2O3:11"
+  # ── S-008: LIS 유지, TAS 소폭 하락 ──────────────────────────────────────
+  - id: S-008
+    composition: "SiO2:72, Al2O3:21, B2O3:7"
     predicted:
-      tg: 532.0
-      cte: 10.1
-      dielectric: 7.3
-      dielectric_const: 4.1
+      tg: 549.2
+      cte: 8.68
+      dielectric: 6.57
+      dielectric_const: 3.24
     measurement:
-      tg: 503.0
-      cte: 10.2
-      dielectric: 7.5
-      dielectric_const: 4.3
-    next_composition: "SiO2:70, Al2O3:20, B2O3:10"
+      tg: 548.7
+      cte: 8.71
+      dielectric: 6.63
+      dielectric_const: 3.28
+    next_composition: "SiO2:72, Al2O3:23, B2O3:5"
     experiment:
       scale:
         target_weight: 150.0
@@ -246,68 +352,8 @@ samples:
         operation_time: "30min"
       furnace:
         steps:
-          - { step: 1, target_temp: 800,  measured_temp: 800,  hold_time: "30min", heating_rate: 5  }
-          - { step: 2, target_temp: 1450, measured_temp: 1449, hold_time: "60min", heating_rate: 10 }
-      annealing:
-        target_temp: 500
-        stop_temp: 50
-        time: "120min"
-      press:
-        pressure: 21
-
-  - id: S-006
-    composition: "SiO2:70, Al2O3:20, B2O3:10"
-    predicted:
-      tg: 545.0
-      cte: 9.1
-      dielectric: 6.75
-      dielectric_const: 3.45
-    measurement:
-      tg: 539.0
-      cte: 9.2
-      dielectric: 6.8
-      dielectric_const: 3.5
-    next_composition: "SiO2:71, Al2O3:21, B2O3:8"
-    experiment:
-      scale:
-        target_weight: 150.0
-        current_weight: 150.0
-      mixer:
-        operation_time: "30min"
-      furnace:
-        steps:
-          - { step: 1, target_temp: 820,  measured_temp: 820,  hold_time: "30min", heating_rate: 5  }
-          - { step: 2, target_temp: 1480, measured_temp: 1479, hold_time: "60min", heating_rate: 10 }
-      annealing:
-        target_temp: 510
-        stop_temp: 50
-        time: "120min"
-      press:
-        pressure: 22
-
-  - id: S-007
-    composition: "SiO2:71, Al2O3:21, B2O3:8"
-    predicted:
-      tg: 560.0
-      cte: 8.45
-      dielectric: 6.35
-      dielectric_const: 3.05
-    measurement:
-      tg: 558.0
-      cte: 8.5
-      dielectric: 6.4
-      dielectric_const: 3.1
-    next_composition: "SiO2:72, Al2O3:22, B2O3:6"
-    experiment:
-      scale:
-        target_weight: 150.0
-        current_weight: 150.0
-      mixer:
-        operation_time: "30min"
-      furnace:
-        steps:
-          - { step: 1, target_temp: 830,  measured_temp: 830,  hold_time: "30min", heating_rate: 5  }
-          - { step: 2, target_temp: 1500, measured_temp: 1500, hold_time: "60min", heating_rate: 10 }
+          - { step: 1, target_temp: 830,  measured_temp: 829,  hold_time: "30min", heating_rate: 5  }
+          - { step: 2, target_temp: 1500, measured_temp: 1498, hold_time: "60min", heating_rate: 10 }
       annealing:
         target_temp: 520
         stop_temp: 50
@@ -315,19 +361,20 @@ samples:
       press:
         pressure: 22
 
-  - id: S-008
-    composition: "SiO2:72, Al2O3:22, B2O3:6"
+  # ── S-009: 수렴 임박 ─────────────────────────────────────────────────────
+  - id: S-009
+    composition: "SiO2:72, Al2O3:23, B2O3:5"
     predicted:
-      tg: 555.0
-      cte: 8.65
-      dielectric: 6.48
-      dielectric_const: 3.18
+      tg: 569.4
+      cte: 7.82
+      dielectric: 6.07
+      dielectric_const: 2.85
     measurement:
-      tg: 551.0
-      cte: 8.7
-      dielectric: 6.5
-      dielectric_const: 3.2
-    next_composition: "SiO2:72, Al2O3:23, B2O3:5"
+      tg: 568.3
+      cte: 7.84
+      dielectric: 6.12
+      dielectric_const: 2.87
+    next_composition: "SiO2:73, Al2O3:23, B2O3:4"
     experiment:
       scale:
         target_weight: 150.0
@@ -337,27 +384,28 @@ samples:
       furnace:
         steps:
           - { step: 1, target_temp: 840,  measured_temp: 840,  hold_time: "30min", heating_rate: 5  }
-          - { step: 2, target_temp: 1520, measured_temp: 1520, hold_time: "60min", heating_rate: 10 }
+          - { step: 2, target_temp: 1525, measured_temp: 1524, hold_time: "60min", heating_rate: 10 }
       annealing:
-        target_temp: 530
+        target_temp: 535
         stop_temp: 50
         time: "120min"
       press:
         pressure: 22
 
-  - id: S-009
-    composition: "SiO2:72, Al2O3:23, B2O3:5"
+  # ── S-010: 수렴 완료 ─────────────────────────────────────────────────────
+  - id: S-010
+    composition: "SiO2:73, Al2O3:23, B2O3:4"
     predicted:
-      tg: 570.0
-      cte: 7.75
-      dielectric: 6.02
-      dielectric_const: 2.80
+      tg: 578.1
+      cte: 7.23
+      dielectric: 5.83
+      dielectric_const: 2.62
     measurement:
-      tg: 569.0
-      cte: 7.8
-      dielectric: 6.05
-      dielectric_const: 2.82
-    next_composition: "SiO2:73, Al2O3:23, B2O3:4"
+      tg: 577.4
+      cte: 7.25
+      dielectric: 5.84
+      dielectric_const: 2.63
+    next_composition: "SiO2:73, Al2O3:24, B2O3:3"
     experiment:
       scale:
         target_weight: 150.0
@@ -366,38 +414,8 @@ samples:
         operation_time: "30min"
       furnace:
         steps:
-          - { step: 1, target_temp: 840,  measured_temp: 841,  hold_time: "30min", heating_rate: 5  }
-          - { step: 2, target_temp: 1530, measured_temp: 1530, hold_time: "60min", heating_rate: 10 }
-      annealing:
-        target_temp: 540
-        stop_temp: 50
-        time: "120min"
-      press:
-        pressure: 22
-
-  - id: S-010
-    composition: "SiO2:73, Al2O3:23, B2O3:4"
-    predicted:
-      tg: 579.0
-      cte: 7.22
-      dielectric: 5.81
-      dielectric_const: 2.63
-    measurement:
-      tg: 579.0
-      cte: 7.22
-      dielectric: 5.82
-      dielectric_const: 2.62
-    next_composition: "SiO2:73, Al2O3:24, B2O3:3"
-    experiment:
-      scale:
-        target_weight: 150.0
-        current_weight: 150.0
-      mixer:
-        operation_time: "30min"
-      furnace:
-        steps:
           - { step: 1, target_temp: 850,  measured_temp: 850,  hold_time: "30min", heating_rate: 5  }
-          - { step: 2, target_temp: 1540, measured_temp: 1540, hold_time: "60min", heating_rate: 10 }
+          - { step: 2, target_temp: 1540, measured_temp: 1539, hold_time: "60min", heating_rate: 10 }
       annealing:
         target_temp: 550
         stop_temp: 50
@@ -405,15 +423,16 @@ samples:
       press:
         pressure: 22
 
+  # ── S-011~S-020: 수렴 이후 미세 조정 구간 (순환 시 고점 유지) ────────────
   - id: S-011
     composition: "SiO2:73, Al2O3:24, B2O3:3"
     predicted:
-      tg: 580.0
-      cte: 7.20
-      dielectric: 5.80
-      dielectric_const: 2.60
+      tg: 579.3
+      cte: 7.21
+      dielectric: 5.81
+      dielectric_const: 2.61
     measurement:
-      tg: 580.5
+      tg: 579.6
       cte: 7.19
       dielectric: 5.79
       dielectric_const: 2.59
@@ -438,20 +457,20 @@ samples:
   - id: S-012
     composition: "SiO2:74, Al2O3:23, B2O3:3"
     predicted:
-      tg: 580.0
+      tg: 580.2
       cte: 7.20
       dielectric: 5.80
       dielectric_const: 2.60
     measurement:
-      tg: 579.8
+      tg: 580.8
       cte: 7.21
-      dielectric: 5.80
-      dielectric_const: 2.60
+      dielectric: 5.81
+      dielectric_const: 2.61
     next_composition: "SiO2:73, Al2O3:24, B2O3:3"
     experiment:
       scale:
         target_weight: 150.0
-        current_weight: 150.0
+        current_weight: 149.9
       mixer:
         operation_time: "30min"
       furnace:
@@ -468,15 +487,15 @@ samples:
   - id: S-013
     composition: "SiO2:73, Al2O3:24, B2O3:3"
     predicted:
-      tg: 580.0
+      tg: 579.8
       cte: 7.20
       dielectric: 5.80
       dielectric_const: 2.60
     measurement:
-      tg: 580.2
+      tg: 580.1
       cte: 7.20
-      dielectric: 5.81
-      dielectric_const: 2.61
+      dielectric: 5.80
+      dielectric_const: 2.60
     next_composition: "SiO2:73, Al2O3:24, B2O3:3"
     experiment:
       scale:
