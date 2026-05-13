@@ -17,7 +17,6 @@
         </div>
 
         <div v-for="(row, i) in form.oxides" :key="i" class="row items-center q-gutter-sm q-mb-xs">
-          <!-- 산화물 선택 드롭다운 (이미 선택된 것 제외) -->
           <q-select
             v-model="row.oxide"
             :options="availableOxides(i)"
@@ -26,7 +25,6 @@
             label-color="blue-grey-4"
             popup-content-style="background: #1d293d; color: #e2e8f0"
           />
-          <!-- wt% 입력 -->
           <q-input
             v-model.number="row.wt"
             type="number"
@@ -36,25 +34,17 @@
             label-color="blue-grey-4"
             suffix="wt%"
           />
-          <!-- 행 삭제 -->
           <q-btn
-            flat round dense
-            icon="close"
-            color="grey-5"
-            size="sm"
+            flat round dense icon="close" color="grey-5" size="sm"
             :disable="form.oxides.length <= 1"
             @click="removeOxide(i)"
           />
         </div>
 
-        <!-- 산화물 추가 버튼 + 합계 표시 -->
+        <!-- 산화물 추가 + 합계 -->
         <div class="row items-center q-mt-sm q-mb-md" style="gap: 12px">
           <q-btn
-            flat dense
-            icon="add"
-            label="산화물 추가"
-            color="indigo-4"
-            size="sm"
+            flat dense icon="add" label="산화물 추가" color="indigo-4" size="sm"
             :disable="form.oxides.length >= OXIDES.length"
             @click="addOxide"
           />
@@ -66,33 +56,58 @@
           <q-icon :name="sumOk ? 'check_circle' : 'error'" :color="sumOk ? 'positive' : 'negative'" size="16px" />
         </div>
 
+        <!-- AI 조성 예측 버튼 -->
+        <q-separator color="blue-grey-8" class="q-mb-sm" />
+        <div class="text-caption q-mb-sm" style="color: #64748b; text-transform: uppercase; letter-spacing: 0.06em">
+          AI 예측
+        </div>
+
+        <div class="row items-center q-mb-md" style="gap: 12px">
+          <q-btn
+            unelevated icon="auto_fix_high" label="조성 예측"
+            color="indigo-8" size="sm"
+            style="border-radius: 6px; min-width: 100px"
+            :disable="!sumOk || predicting"
+            :loading="predicting"
+            @click="runPrediction"
+          />
+
+          <!-- 예측 완료 후 결과 표시 -->
+          <div v-if="hasPredicted" class="row q-gutter-xs">
+            <div class="pred-chip">
+              <span class="pred-label">Tg</span>
+              <span class="pred-val">{{ predictedVals.tg }}°C</span>
+            </div>
+            <div class="pred-chip">
+              <span class="pred-label">CTE</span>
+              <span class="pred-val">{{ predictedVals.cte }}</span>
+            </div>
+            <div class="pred-chip">
+              <span class="pred-label">유전율</span>
+              <span class="pred-val">{{ predictedVals.dielectric }}</span>
+            </div>
+            <div class="pred-chip">
+              <span class="pred-label">유전상수</span>
+              <span class="pred-val">{{ predictedVals.dielectric_const }}</span>
+            </div>
+          </div>
+          <span v-else-if="sumOk" style="font-size: 11px; color: #4b5563">
+            ← 조성 예측 후 확인 가능
+          </span>
+        </div>
+
         <!-- 공통 목표치 -->
         <q-separator color="blue-grey-8" class="q-mb-sm" />
         <div class="text-caption q-mb-sm" style="color: #64748b; text-transform: uppercase; letter-spacing: 0.06em">
           공통 목표치
         </div>
         <div class="row q-gutter-sm q-mb-sm">
-          <q-input v-model.number="form.targetTg"             type="number" label="Tg (°C)"      outlined dense dark class="col" label-color="blue-grey-4" />
-          <q-input v-model.number="form.targetCte"            type="number" label="CTE (×10⁻⁶/K)" outlined dense dark class="col" label-color="blue-grey-4" />
+          <q-input v-model.number="form.targetTg"              type="number" label="Tg (°C)"        outlined dense dark class="col" label-color="blue-grey-4" />
+          <q-input v-model.number="form.targetCte"             type="number" label="CTE (×10⁻⁶/K)" outlined dense dark class="col" label-color="blue-grey-4" />
         </div>
         <div class="row q-gutter-sm q-mb-md">
-          <q-input v-model.number="form.targetDielectric"     type="number" label="유전율"       outlined dense dark class="col" label-color="blue-grey-4" />
-          <q-input v-model.number="form.targetDielectricConst" type="number" label="유전상수"    outlined dense dark class="col" label-color="blue-grey-4" />
-        </div>
-
-        <!-- YAML 샘플 예측값 미리보기 -->
-        <div v-if="linkedSample">
-          <div class="text-caption q-mb-xs" style="color: #64748b; text-transform: uppercase; letter-spacing: 0.06em">
-            예측값 · 측정값 (YAML 자동 로드 — {{ linkedSample.id }})
-          </div>
-          <div class="row q-gutter-sm">
-            <div v-for="item in previewItems" :key="item.label" class="preview-chip">
-              <span class="preview-label">{{ item.label }}</span>
-              <span class="preview-val">{{ item.predicted }}</span>
-              <span class="preview-sep">→</span>
-              <span class="preview-meas">{{ item.measured }}</span>
-            </div>
-          </div>
+          <q-input v-model.number="form.targetDielectric"      type="number" label="유전율"         outlined dense dark class="col" label-color="blue-grey-4" />
+          <q-input v-model.number="form.targetDielectricConst" type="number" label="유전상수"       outlined dense dark class="col" label-color="blue-grey-4" />
         </div>
       </q-card-section>
 
@@ -114,7 +129,6 @@ import { ref, computed, watch } from 'vue'
 import { useExperimentStore } from 'src/stores/experiment'
 import { useConfigStore } from 'src/stores/config'
 
-// 데모에서 사용할 산화물 3종
 const OXIDES = ['SiO2', 'Al2O3', 'B2O3']
 
 interface OxideRow { oxide: string; wt: number }
@@ -140,9 +154,18 @@ const defaultForm = () => ({
 
 const form = ref(defaultForm())
 
-// 모달이 열릴 때 공통 목표치를 현재 YAML 값으로 초기화
+// AI 예측 상태
+const predicting    = ref(false)
+const hasPredicted  = ref(false)
+const predictedVals = ref({ tg: 0, cte: 0, dielectric: 0, dielectric_const: 0 })
+
+// 조성이 바뀌면 예측을 초기화 (다시 예측 필요)
+watch(() => form.value.oxides, () => { hasPredicted.value = false }, { deep: true })
+
+// 모달 열릴 때 목표치 초기화, 예측 상태 리셋
 watch(open, v => {
   if (v) {
+    hasPredicted.value = false
     const gt = configStore.config?.global_target
     if (gt) {
       form.value.targetTg              = gt.tg
@@ -153,66 +176,58 @@ watch(open, v => {
   }
 })
 
-// 이미 선택된 산화물을 제외한 드롭다운 옵션 반환
 function availableOxides(rowIdx: number): string[] {
-  const selected = form.value.oxides
-    .filter((_, i) => i !== rowIdx)
-    .map(r => r.oxide)
+  const selected = form.value.oxides.filter((_, i) => i !== rowIdx).map(r => r.oxide)
   return OXIDES.filter(o => !selected.includes(o))
 }
 
-// 새 행 추가: 아직 선택 안 된 첫 번째 산화물로 초기화
 function addOxide() {
   const used = form.value.oxides.map(r => r.oxide)
   const next = OXIDES.find(o => !used.includes(o))
   if (next) form.value.oxides.push({ oxide: next, wt: 0 })
 }
 
-function removeOxide(i: number) {
-  form.value.oxides.splice(i, 1)
+function removeOxide(i: number) { form.value.oxides.splice(i, 1) }
+
+const oxideSum = computed(() => form.value.oxides.reduce((acc, r) => acc + (r.wt ?? 0), 0))
+const sumOk    = computed(() => Math.abs(oxideSum.value - 100) < 0.1)
+
+const compositionStr = computed(() =>
+  form.value.oxides.filter(r => (r.wt ?? 0) > 0).map(r => `${r.oxide}:${r.wt}`).join(', ')
+)
+
+// YAML 회차 연결 (sourceId용 — 어떤 측정값을 사용할지 결정)
+const linkedSample = computed(() => {
+  const samples = configStore.config?.samples ?? []
+  return samples[experimentStore.rows.length % samples.length] ?? null
+})
+
+// 예측 버튼: 1초 로딩 후 목표치 ±2.5% 범위 내 값 생성
+// "AI 모델은 항상 목표에 근접한 조성을 추천한다"는 시나리오를 표현
+function runPrediction() {
+  predicting.value = true
+  setTimeout(() => {
+    const gt = configStore.config?.global_target
+    if (gt) {
+      const noise = (v: number) => v * (1 + (Math.random() * 2 - 1) * 0.025)
+      predictedVals.value = {
+        tg:               Math.round(noise(gt.tg)),
+        cte:              Math.round(noise(gt.cte) * 10) / 10,
+        dielectric:       Math.round(noise(gt.dielectric) * 10) / 10,
+        dielectric_const: Math.round(noise(gt.dielectric_const) * 100) / 100,
+      }
+    }
+    predicting.value   = false
+    hasPredicted.value = true
+  }, 1000)
 }
 
-// wt% 합계 계산
-const oxideSum = computed(() =>
-  form.value.oxides.reduce((acc, r) => acc + (r.wt ?? 0), 0)
-)
-
-// 합계가 100%인지 확인 (부동소수점 오차 허용)
-const sumOk = computed(() => Math.abs(oxideSum.value - 100) < 0.1)
-
-// "SiO2:70, Al2O3:18, B2O3:12" 형태 문자열 자동 생성
-const compositionStr = computed(() =>
-  form.value.oxides
-    .filter(r => (r.wt ?? 0) > 0)
-    .map(r => `${r.oxide}:${r.wt}`)
-    .join(', ')
-)
-
-// YAML에서 자동 연결되는 샘플 (실험 회차 순서로 순환)
-const linkedSample = computed(() => {
-  const samples  = configStore.config?.samples ?? []
-  const rowCount = experimentStore.rows.length
-  return samples[rowCount % samples.length] ?? null
-})
-
-const previewItems = computed(() => {
-  const s = linkedSample.value
-  if (!s) return []
-  return [
-    { label: 'Tg',      predicted: s.predicted.tg,               measured: s.measurement.tg },
-    { label: 'CTE',     predicted: s.predicted.cte,              measured: s.measurement.cte },
-    { label: '유전율',  predicted: s.predicted.dielectric,       measured: s.measurement.dielectric },
-    { label: '유전상수', predicted: s.predicted.dielectric_const, measured: s.measurement.dielectric_const },
-  ]
-})
-
-// wt% 합계 100%이면 확인 버튼 활성화 (ID는 자동 생성)
-const isValid = computed(() => sumOk.value)
+// 조성 합계 100% + 예측 완료 시에만 확인 버튼 활성화
+const isValid = computed(() => sumOk.value && hasPredicted.value)
 
 function confirm() {
   if (!isValid.value) return
 
-  // 공통 목표치 업데이트
   configStore.updateGlobalTarget({
     tg:               form.value.targetTg,
     cte:              form.value.targetCte,
@@ -220,38 +235,35 @@ function confirm() {
     dielectric_const: form.value.targetDielectricConst,
   })
 
-  const sample = linkedSample.value
   experimentStore.design({
     composition: compositionStr.value,
-    predicted: sample
-      ? { tg: sample.predicted.tg, cte: sample.predicted.cte, dielectric: sample.predicted.dielectric, dielectric_const: sample.predicted.dielectric_const }
-      : { tg: 0, cte: 0, dielectric: 0, dielectric_const: 0 },
-    sourceId: sample?.id ?? null,
+    predicted:   { ...predictedVals.value },  // AI 예측값 (목표치 근처)
+    sourceId:    linkedSample.value?.id ?? null,
   })
 
   form.value = defaultForm()
+  hasPredicted.value = false
   open.value = false
 }
 
 function cancel() {
   form.value = defaultForm()
+  hasPredicted.value = false
   open.value = false
 }
 </script>
 
 <style scoped>
-.preview-chip {
+.pred-chip {
   display: flex;
   align-items: center;
   gap: 4px;
-  background: rgba(97,95,255,0.08);
-  border: 1px solid rgba(97,95,255,0.2);
+  background: rgba(16,185,129,0.08);
+  border: 1px solid rgba(16,185,129,0.25);
   border-radius: 6px;
-  padding: 4px 10px;
+  padding: 3px 8px;
   font-size: 11px;
 }
-.preview-label { color: #64748b; font-weight: 600; min-width: 40px; }
-.preview-val   { color: #94a3b8; }
-.preview-sep   { color: #4b5563; }
-.preview-meas  { color: #22c55e; font-weight: 600; }
+.pred-label { color: #64748b; font-weight: 600; margin-right: 2px; }
+.pred-val   { color: #10b981; font-weight: 700; }
 </style>

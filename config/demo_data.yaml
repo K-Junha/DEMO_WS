@@ -1,8 +1,8 @@
 timing:
-  device_activation_interval_ms: 1000
-  experiment_running_ms: 1000
-  experiment_complete_ms: 500
-  experiment_gap_ms: 500
+  device_activation_interval_ms: 500
+  experiment_running_ms: 500
+  experiment_complete_ms: 250
+  experiment_gap_ms: 250
 
 global_target:
   tg: 580.0
@@ -143,10 +143,10 @@ samples:
       dielectric: 7.5
       dielectric_const: 4.3
     measurement:
-      tg: 481.0
-      cte: 10.8
-      dielectric: 7.9
-      dielectric_const: 4.7
+      tg: 483.0
+      cte: 10.6
+      dielectric: 7.8
+      dielectric_const: 4.5
     next_composition: "SiO2:70, Al2O3:16, B2O3:14"
     experiment:
       scale:
@@ -168,15 +168,15 @@ samples:
   - id: S-003
     composition: "SiO2:70, Al2O3:16, B2O3:14"
     predicted:
-      tg: 515.0
+      tg: 530.0
       cte: 9.8
-      dielectric: 7.3
-      dielectric_const: 4.1
-    measurement:
-      tg: 503.0
-      cte: 10.1
       dielectric: 7.5
-      dielectric_const: 4.3
+      dielectric_const: 4.0
+    measurement:
+      tg: 471.0
+      cte: 10.9
+      dielectric: 8.0
+      dielectric_const: 4.8
     next_composition: "SiO2:70, Al2O3:18, B2O3:12"
     experiment:
       scale:
@@ -198,15 +198,15 @@ samples:
   - id: S-004
     composition: "SiO2:70, Al2O3:18, B2O3:12"
     predicted:
-      tg: 530.0
-      cte: 9.2
-      dielectric: 6.9
+      tg: 535.0
+      cte: 9.5
+      dielectric: 7.0
       dielectric_const: 3.8
     measurement:
-      tg: 523.0
-      cte: 9.4
-      dielectric: 7.0
-      dielectric_const: 3.9
+      tg: 508.0
+      cte: 10.0
+      dielectric: 7.4
+      dielectric_const: 4.2
     next_composition: "SiO2:70, Al2O3:19, B2O3:11"
     experiment:
       scale:
@@ -228,15 +228,15 @@ samples:
   - id: S-005
     composition: "SiO2:70, Al2O3:19, B2O3:11"
     predicted:
-      tg: 544.0
-      cte: 8.7
-      dielectric: 6.55
-      dielectric_const: 3.48
+      tg: 532.0
+      cte: 10.1
+      dielectric: 7.3
+      dielectric_const: 4.1
     measurement:
-      tg: 540.0
-      cte: 8.8
-      dielectric: 6.6
-      dielectric_const: 3.5
+      tg: 503.0
+      cte: 10.2
+      dielectric: 7.5
+      dielectric_const: 4.3
     next_composition: "SiO2:70, Al2O3:20, B2O3:10"
     experiment:
       scale:
@@ -258,15 +258,15 @@ samples:
   - id: S-006
     composition: "SiO2:70, Al2O3:20, B2O3:10"
     predicted:
-      tg: 555.0
-      cte: 8.18
-      dielectric: 6.28
-      dielectric_const: 3.18
+      tg: 545.0
+      cte: 9.1
+      dielectric: 6.75
+      dielectric_const: 3.45
     measurement:
-      tg: 553.0
-      cte: 8.2
-      dielectric: 6.3
-      dielectric_const: 3.2
+      tg: 539.0
+      cte: 9.2
+      dielectric: 6.8
+      dielectric_const: 3.5
     next_composition: "SiO2:71, Al2O3:21, B2O3:8"
     experiment:
       scale:
@@ -288,15 +288,15 @@ samples:
   - id: S-007
     composition: "SiO2:71, Al2O3:21, B2O3:8"
     predicted:
-      tg: 564.0
-      cte: 7.82
-      dielectric: 6.08
-      dielectric_const: 2.98
+      tg: 560.0
+      cte: 8.45
+      dielectric: 6.35
+      dielectric_const: 3.05
     measurement:
-      tg: 563.0
-      cte: 7.8
-      dielectric: 6.1
-      dielectric_const: 3.0
+      tg: 558.0
+      cte: 8.5
+      dielectric: 6.4
+      dielectric_const: 3.1
     next_composition: "SiO2:72, Al2O3:22, B2O3:6"
     experiment:
       scale:
@@ -318,15 +318,15 @@ samples:
   - id: S-008
     composition: "SiO2:72, Al2O3:22, B2O3:6"
     predicted:
-      tg: 572.0
-      cte: 7.52
-      dielectric: 5.92
-      dielectric_const: 2.82
+      tg: 555.0
+      cte: 8.65
+      dielectric: 6.48
+      dielectric_const: 3.18
     measurement:
-      tg: 572.0
-      cte: 7.5
-      dielectric: 5.94
-      dielectric_const: 2.8
+      tg: 551.0
+      cte: 8.7
+      dielectric: 6.5
+      dielectric_const: 3.2
     next_composition: "SiO2:72, Al2O3:23, B2O3:5"
     experiment:
       scale:
@@ -348,15 +348,15 @@ samples:
   - id: S-009
     composition: "SiO2:72, Al2O3:23, B2O3:5"
     predicted:
-      tg: 577.0
-      cte: 7.32
-      dielectric: 5.84
-      dielectric_const: 2.70
+      tg: 570.0
+      cte: 7.75
+      dielectric: 6.02
+      dielectric_const: 2.80
     measurement:
-      tg: 577.0
-      cte: 7.3
-      dielectric: 5.86
-      dielectric_const: 2.68
+      tg: 569.0
+      cte: 7.8
+      dielectric: 6.05
+      dielectric_const: 2.82
     next_composition: "SiO2:73, Al2O3:23, B2O3:4"
     experiment:
       scale:
