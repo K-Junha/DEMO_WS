@@ -6,7 +6,7 @@
       <span style="font-size: 12px; font-weight: 700; color: #e2e8f0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1">
         {{ device.name }}
       </span>
-      <q-icon :name="deviceIcon" size="15px" :style="{ color: active ? '#615fff' : '#4b5563' }" />
+      <q-icon :name="deviceIcon" size="24px" :style="{ color: active ? '#615fff' : '#4b5563' }" />
     </div>
 
     <!-- Model -->
