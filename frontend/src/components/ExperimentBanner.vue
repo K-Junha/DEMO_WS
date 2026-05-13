@@ -1,47 +1,43 @@
 <template>
-  <!-- 실험 진행 중일 때만 배너 표시 -->
-  <div v-if="experimentStore.state === 'running'" class="exp-stepper">
-    <!-- 상단: 제목 + 진행률 바 -->
-    <div class="stepper-header">
-      <q-icon name="science" size="13px" color="indigo-4" />
-      <span>실험 진행 중</span>
-      <div class="progress-track">
-        <div class="progress-fill" :style="{ width: progressPct + '%' }" />
+  <!-- 실험 진행 중 팝업: 현재 장치명 + 보고서 넘기는 애니메이션 -->
+  <q-dialog v-model="showDialog" persistent>
+    <q-card class="exp-popup">
+      <!-- 장치명 + 상태 -->
+      <div class="popup-title">
+        <q-icon name="science" size="18px" color="indigo-4" />
+        <span class="device-label">
+          [{{ currentDeviceName }}]
+          <span v-if="isDone" class="done-text">실험 완료</span>
+          <span v-else class="running-text">실험 중</span>
+        </span>
       </div>
-      <span style="font-size: 11px; color: #615fff; min-width: 34px; text-align: right">
-        {{ Math.round(progressPct) }}%
-      </span>
-    </div>
 
-    <!-- 9단계 스텝퍼: 완료(초록) / 진행중(인디고 스피너) / 대기(반투명) -->
-    <div class="steps-row">
-      <div
-        v-for="(d, i) in DEVICES"
-        :key="d.name"
-        class="step-item"
-        :class="{
-          'step-done':    i < curDeviceIdx || (i === curDeviceIdx && curPhase === 'complete'),
-          'step-active':  i === curDeviceIdx && curPhase === 'running',
-          'step-pending': i > curDeviceIdx,
-        }"
-      >
-        <div class="step-icon-wrap">
-          <q-spinner v-if="i === curDeviceIdx && curPhase === 'running'" size="11px" />
-          <q-icon
-            v-else-if="i < curDeviceIdx || (i === curDeviceIdx && curPhase === 'complete')"
-            name="check"
-            size="11px"
-          />
-          <q-icon v-else :name="d.icon" size="11px" />
+      <!-- 보고서 페이지 넘기는 애니메이션 -->
+      <div class="paper-stage">
+        <div v-for="n in 4" :key="n" class="paper" :style="`animation-delay: ${(n - 1) * 0.45}s`">
+          <div class="pline full" />
+          <div class="pline short" />
+          <div class="pline full" />
+          <div class="pline mid" />
+          <div class="pline full" />
+          <div class="pline short" />
+          <div class="pline mid" />
         </div>
-        <div class="step-name">{{ d.name }}</div>
       </div>
-    </div>
-  </div>
+
+      <!-- 진행률 바 -->
+      <div class="popup-progress">
+        <div class="prog-track">
+          <div class="prog-fill" :style="{ width: progressPct + '%' }" />
+        </div>
+        <span class="prog-label">{{ Math.round(progressPct) }}%</span>
+      </div>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useExperimentStore } from 'src/stores/experiment'
 import { useConfigStore } from 'src/stores/config'
 import { useTrendStore } from 'src/stores/trend'
@@ -51,7 +47,6 @@ const experimentStore = useExperimentStore()
 const configStore = useConfigStore()
 const trendStore = useTrendStore()
 
-// 9개 장치 순서 (YAML devices 순서와 일치해야 함)
 const DEVICES = [
   { name: '저울',         icon: 'balance' },
   { name: '믹서',         icon: 'rotate_right' },
@@ -64,17 +59,34 @@ const DEVICES = [
   { name: '유전율측정기', icon: 'bolt' },
 ]
 
-const curDeviceIdx = computed(() => experimentStore.currentPhase.deviceIndex)
-const curPhase     = computed(() => experimentStore.currentPhase.phase)
+const showDialog = ref(false)
+const isDone     = ref(false)
 
-// 진행률: 각 장치를 running(0.5) → complete(1.0)로 세분화하여 부드럽게 표시
+// 현재 진행 중인 장치 이름
+const currentDeviceName = computed(() => {
+  const idx = experimentStore.currentPhase.deviceIndex
+  return DEVICES[idx]?.name ?? ''
+})
+
+// 진행률: running=0.5 / complete=1.0 단위로 부드럽게 증가
 const progressPct = computed(() => {
-  if (experimentStore.state !== 'running') return 0
-  const step = curDeviceIdx.value + (curPhase.value === 'complete' ? 1 : 0.5)
+  const { deviceIndex, phase } = experimentStore.currentPhase
+  const step = deviceIndex + (phase === 'complete' ? 1 : 0.5)
   return Math.min(100, (step / DEVICES.length) * 100)
 })
 
-// YAML 타이밍 설정을 가져오는 헬퍼 (기본값 포함)
+// 실험 시작 → 팝업 열기 / 완료 → 잠시 후 닫기
+watch(() => experimentStore.state, state => {
+  if (state === 'running') {
+    isDone.value = false
+    showDialog.value = true
+    runExperiment(experimentStore.incrementRunId())
+  } else if (state === 'done') {
+    isDone.value = true
+    setTimeout(() => { showDialog.value = false }, 1600)
+  }
+})
+
 function timing() {
   const t = configStore.config?.timing
   return {
@@ -84,19 +96,11 @@ function timing() {
   }
 }
 
-// state가 'running'이 될 때마다 새 실험 애니메이션 시작
-// incrementRunId()로 이전 타이머 체인을 무효화하여 중복 실행 방지
-watch(
-  () => experimentStore.state,
-  state => { if (state === 'running') runExperiment(experimentStore.incrementRunId()) }
-)
-
-// 장치별 순차 애니메이션: running → complete → (gap) → 다음 장치
+// 장치별 순차 애니메이션 (runId로 stale 방지)
 function runExperiment(id: number) {
   const t = timing()
 
   function step(i: number) {
-    // runId가 다르면 리셋/재시작된 것이므로 중단
     if (id !== experimentStore.getRunId()) return
     if (i >= DEVICES.length) { finishExperiment(); return }
 
@@ -119,7 +123,6 @@ function runExperiment(id: number) {
   step(0)
 }
 
-// 모든 장치 완료 후 호출: 측정값 저장, LIS/TAS 계산, trend 누적
 function finishExperiment() {
   const cfg = configStore.config
   if (!cfg) return
@@ -127,7 +130,6 @@ function finishExperiment() {
   const lastRow = rows[rows.length - 1]
   if (!lastRow) return
 
-  // sourceId로 YAML 샘플을 찾아 실제 측정값 사용; 없으면 예측값으로 대체
   const srcSample = cfg.samples.find(s => s.id === lastRow.sourceId || s.id === lastRow.id)
   const measurement = srcSample?.measurement ?? lastRow.predicted
 
@@ -144,77 +146,108 @@ function finishExperiment() {
 </script>
 
 <style scoped>
-.exp-stepper {
-  background: rgba(97,95,255,0.07);
-  border: 1px solid rgba(97,95,255,0.22);
-  border-radius: 10px;
-  padding: 12px 16px;
-}
-
-.stepper-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 11px;
-  font-weight: 700;
-  color: #94a3b8;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  margin-bottom: 12px;
-}
-
-.progress-track {
-  flex: 1;
-  height: 4px;
-  background: rgba(255,255,255,0.07);
-  border-radius: 2px;
+/* ── 팝업 카드 ── */
+.exp-popup {
+  background: #131e30;
+  border: 1px solid rgba(97, 95, 255, 0.45);
+  border-radius: 14px;
+  padding: 28px 32px 22px;
+  min-width: 320px;
+  text-align: center;
   overflow: hidden;
 }
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #615fff, #10b981);
-  border-radius: 2px;
-  transition: width 0.6s ease;
-}
 
-.steps-row {
+/* ── 제목 영역 ── */
+.popup-title {
   display: flex;
-  gap: 4px;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+.device-label {
+  font-size: 18px;
+  font-weight: 700;
+  color: #e2e8f0;
+  letter-spacing: 0.04em;
+}
+.running-text {
+  color: #615fff;
+  margin-left: 4px;
+}
+.done-text {
+  color: #10b981;
+  margin-left: 4px;
 }
 
-.step-item {
-  flex: 1;
+/* ── 보고서 페이지 넘기는 애니메이션 ── */
+.paper-stage {
+  position: relative;
+  width: 140px;
+  height: 100px;
+  margin: 0 auto 22px;
+}
+
+.paper {
+  position: absolute;
+  inset: 0;
+  background: rgba(226, 232, 240, 0.05);
+  border: 1px solid rgba(97, 95, 255, 0.25);
+  border-radius: 5px;
+  padding: 10px 12px;
   display: flex;
   flex-direction: column;
+  gap: 7px;
+  animation: pageFlip 1.8s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+
+@keyframes pageFlip {
+  0%   { transform: translateY(30px) rotate(4deg) scale(0.88); opacity: 0; }
+  12%  { transform: translateY(0) rotate(0deg) scale(1);       opacity: 1; }
+  70%  { transform: translateY(0) rotate(0deg) scale(1);       opacity: 1; }
+  100% { transform: translateY(-30px) rotate(-4deg) scale(0.88); opacity: 0; }
+}
+
+.pline {
+  height: 7px;
+  background: rgba(97, 95, 255, 0.35);
+  border-radius: 3px;
+  animation: shimmerLine 1.8s ease-in-out infinite;
+}
+.pline.short { width: 50%; }
+.pline.mid   { width: 70%; }
+.pline.full  { width: 100%; }
+
+@keyframes shimmerLine {
+  0%, 100% { opacity: 0.3; }
+  50%       { opacity: 0.8; }
+}
+
+/* ── 진행률 바 ── */
+.popup-progress {
+  display: flex;
   align-items: center;
-  gap: 5px;
-  padding: 8px 2px;
-  border-radius: 7px;
-  transition: background 0.3s, opacity 0.3s;
+  gap: 10px;
 }
-
-.step-done    { background: rgba(16,185,129,0.13); }
-.step-active  { background: rgba(97,95,255,0.18); }
-.step-pending { opacity: 0.3; }
-
-.step-icon-wrap {
-  width: 24px; height: 24px;
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-}
-.step-done   .step-icon-wrap { background: rgba(16,185,129,0.25); color: #10b981; }
-.step-active .step-icon-wrap { background: rgba(97,95,255,0.35);  color: #615fff; }
-.step-pending .step-icon-wrap { color: #4b5563; }
-
-.step-name {
-  font-size: 9px;
-  color: #64748b;
-  text-align: center;
-  white-space: nowrap;
+.prog-track {
+  flex: 1;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 3px;
   overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
 }
-.step-done   .step-name { color: #10b981; }
-.step-active .step-name { color: #a5b4fc; font-weight: 600; }
+.prog-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #615fff, #10b981);
+  border-radius: 3px;
+  transition: width 0.6s ease;
+}
+.prog-label {
+  font-size: 12px;
+  color: #615fff;
+  font-weight: 700;
+  min-width: 36px;
+  text-align: right;
+}
 </style>

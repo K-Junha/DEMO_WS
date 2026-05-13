@@ -8,6 +8,7 @@
       :active="activeIndex >= i"
       :exp-data="expDataFor(i)"
       :measurement="measurementFor(i)"
+      :loading="isDeviceLoading(i)"
     />
   </div>
 </template>
@@ -76,19 +77,31 @@ function getSample() {
 }
 
 /**
- * 해당 장치 인덱스가 현재 실험에서 "이미 도달한 단계"인지 판단
- * - running/done: currentPhase.deviceIndex와 비교
- * - designed + 완료 행 있음: 이전 실험이 전체 완료됐으므로 모든 장치 표시
+ * 해당 장치가 "데이터를 표시할 수 있는 완료 상태"인지 판단
+ * - running 중: 해당 장치가 complete 됐거나 이미 지나간 경우만 true
+ *   (phase='running'인 현재 장치는 false → 로딩 상태로 표시)
+ * - done/designed(완료 행 있음): 전체 완료로 모두 표시
  */
 function isStepReached(deviceIdx: number): boolean {
   const { state, currentPhase, rows } = experimentStore
-  if (state === 'running' || state === 'done') {
-    return currentPhase.deviceIndex >= deviceIdx
+  if (state === 'running') {
+    if (currentPhase.deviceIndex > deviceIdx) return true
+    if (currentPhase.deviceIndex === deviceIdx && currentPhase.phase === 'complete') return true
+    return false
   }
-  if (state === 'designed' && rows.some(r => r.experimentDone)) {
-    return true
-  }
+  if (state === 'done') return true
+  if (state === 'designed' && rows.some(r => r.experimentDone)) return true
   return false
+}
+
+// 해당 장치가 현재 실험 진행 중(running phase)인지 → DeviceCard shimmer 로딩용
+function isDeviceLoading(deviceIdx: number): boolean {
+  const { state, currentPhase } = experimentStore
+  return (
+    state === 'running' &&
+    currentPhase.deviceIndex === deviceIdx &&
+    currentPhase.phase === 'running'
+  )
 }
 
 // 장치 카드에 전달할 실험 파라미터 (저울 세팅값, 전기로 온도 등)

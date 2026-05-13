@@ -31,7 +31,13 @@
 
     <!-- Data block: always visible when active -->
     <div v-if="active" class="exp-data-block">
-      <template v-if="device.id === 'scale'">
+      <!-- 해당 장치 실험 진행 중: shimmer 스켈레톤 표시 -->
+      <template v-if="loading">
+        <div class="skel-line" />
+        <div class="skel-line skel-short" />
+        <div class="skel-line" />
+      </template>
+      <template v-else-if="device.id === 'scale'">
         <div class="exp-row"><span class="exp-label">세팅</span><span class="exp-val">{{ expData?.scale?.target_weight ?? '—' }}{{ expData?.scale ? 'g' : '' }}</span></div>
         <div class="exp-row"><span class="exp-label">현재</span><span class="exp-val">{{ expData?.scale?.current_weight ?? '—' }}{{ expData?.scale ? 'g' : '' }}</span></div>
       </template>
@@ -98,6 +104,7 @@ const props = defineProps<{
   active: boolean
   expData: SampleExperiment | null
   measurement: SampleMeasurement | null
+  loading: boolean
 }>()
 
 const deviceIcon    = computed(() => ICON_MAP[props.device.id] ?? 'device_unknown')
@@ -117,4 +124,23 @@ const protocolClass = computed(() => PROTOCOL_CLASS[props.device.protocol] ?? 'b
 .exp-col { display: flex; flex-direction: column; gap: 1px; }
 .exp-label { font-size: 10px; color: #64748b; }
 .exp-val   { font-size: 11px; color: #e2e8f0; font-weight: 600; text-align: right; }
+
+/* shimmer 로딩 스켈레톤 */
+.skel-line {
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(90deg,
+    rgba(97,95,255,0.08) 25%,
+    rgba(97,95,255,0.22) 50%,
+    rgba(97,95,255,0.08) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.2s ease-in-out infinite;
+}
+.skel-short { width: 55%; }
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
 </style>
