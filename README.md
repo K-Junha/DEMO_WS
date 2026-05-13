@@ -1,3 +1,13 @@
+---
+title: WS Lab Pilot
+emoji: 🧪
+colorFrom: indigo
+colorTo: blue
+sdk: docker
+pinned: false
+app_port: 7860
+---
+
 # WS LAB PILOT — DEMO DAY
 
 유리 조성 최적화 실험을 Bayesian Optimization(BO) 워크플로우로 시뮬레이션하는 투자자 데모 앱.
