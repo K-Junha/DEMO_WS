@@ -37,8 +37,8 @@ function xArr(len: number): number[] { return Array.from({ length: len }, (_, i)
 
 function renderCharts() {
   if (!Plotly || !lisChart.value || !tasChart.value) return
-  const lisCum = trendStore.lisCumulative
-  const tasCum = trendStore.tasCumulative
+  const lisCum  = trendStore.lisCumulative  // 누적합 (LIS: 전체 정확도 추이)
+  const tasRaw  = trendStore.tasHistory      // 회차별 원본값 (TAS: 목표 근접도 변화)
 
   Plotly!.react(
     lisChart.value,
@@ -57,19 +57,19 @@ function renderCharts() {
   Plotly!.react(
     tasChart.value,
     [{
-      x: xArr(tasCum.length), y: tasCum,
+      x: xArr(tasRaw.length), y: tasRaw,
       type: 'scatter', mode: 'lines+markers',
       line: { color: '#10b981', width: 2 },
       marker: { color: '#10b981', size: 7 },
       fill: 'tozeroy', fillcolor: 'rgba(16,185,129,0.08)',
-      name: 'TAS cumulative',
+      name: 'TAS per experiment',
     }],
     { ...DARK_LAYOUT, title: { text: 'TAS Trend', font: { color: '#e2e8f0', size: 14 } } },
     { responsive: true }
   )
 }
 
-watch(() => [trendStore.lisCumulative, trendStore.tasCumulative], renderCharts, { deep: true })
+watch(() => [trendStore.lisCumulative, trendStore.tasHistory], renderCharts, { deep: true })
 onMounted(loadPlotly)
 onUnmounted(() => {
   if (Plotly && lisChart.value) Plotly.purge(lisChart.value)

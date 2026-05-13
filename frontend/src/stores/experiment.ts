@@ -42,9 +42,11 @@ export const useExperimentStore = defineStore('experiment', () => {
   function getRunId() { return runId }
   function incrementRunId() { runId++; return runId }
 
-  // 새 조성 행 추가 → state를 'designed'로 전환
-  function design(row: Omit<SampleRow, 'measurement' | 'lis' | 'tas' | 'experimentDone'>) {
+  // 새 조성 행 추가 → state를 'designed'로 전환 (ID는 S-001, S-002... 자동 생성)
+  function design(row: Omit<SampleRow, 'id' | 'measurement' | 'lis' | 'tas' | 'experimentDone'>) {
+    const id = `S-${String(rows.value.length + 1).padStart(3, '0')}`
     rows.value.push({
+      id,
       ...row,
       measurement: { tg: null, cte: null, dielectric: null, dielectric_const: null },
       lis: null,
@@ -78,10 +80,11 @@ export const useExperimentStore = defineStore('experiment', () => {
     state.value = 'done'
   }
 
-  // 튜닝 버튼 클릭 시: YAML의 다음 샘플을 새 행으로 추가 → state를 'designed'로 전환
+  // 튜닝 버튼 클릭 시: YAML의 다음 샘플을 새 행으로 추가 → state를 'designed'로 전환 (ID 자동 생성)
   function addAutoTuneRow(yamlSample: Sample) {
+    const id = `S-${String(rows.value.length + 1).padStart(3, '0')}`
     rows.value.push({
-      id: yamlSample.id,
+      id,
       composition: yamlSample.composition,
       predicted: { ...yamlSample.predicted },
       measurement: { tg: null, cte: null, dielectric: null, dielectric_const: null },

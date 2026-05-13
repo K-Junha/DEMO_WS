@@ -5,10 +5,10 @@ timing:
   experiment_gap_ms: 500
 
 global_target:
-  tg: 520.0
-  cte: 8.5
-  dielectric: 6.2
-  dielectric_const: 3.5
+  tg: 580.0
+  cte: 7.2
+  dielectric: 5.8
+  dielectric_const: 2.6
   weights:
     tg: 1.0
     cte: 1.0
@@ -18,10 +18,10 @@ global_target:
 auto_tune_enabled: true
 
 random_range:
-  tg:              { min: 500, max: 560 }
-  cte:             { min: 7.5, max: 9.5 }
-  dielectric:      { min: 5.5, max: 7.0 }
-  dielectric_const: { min: 2.8, max: 4.0 }
+  tg:              { min: 450, max: 590 }
+  cte:             { min: 7.0, max: 12.0 }
+  dielectric:      { min: 5.5, max: 8.5 }
+  dielectric_const: { min: 2.4, max: 5.5 }
 
 devices:
   - id: scale
@@ -100,20 +100,54 @@ devices:
     connected: true
     measures: [유전율, 유전상수]
 
+# ── 수렴 시나리오 ──
+# S-001 → S-010: 실험 반복할수록 예측/측정값이 목표치에 수렴
+# 목표: Tg=580°C, CTE=7.2, 유전율=5.8, 유전상수=2.6
+# LIS(예측정확도): 0.85 → 0.999 / TAS(목표근접도): 0.45 → 0.996
 samples:
   - id: S-001
-    composition: "SiO2:70, Al2O3:18, B2O3:12"
+    composition: "SiO2:70, Al2O3:12, B2O3:18"
     predicted:
-      tg: 515.0
-      cte: 8.2
-      dielectric: 6.0
-      dielectric_const: 3.2
+      tg: 510.0
+      cte: 9.8
+      dielectric: 7.2
+      dielectric_const: 4.1
     measurement:
-      tg: 520.3
-      cte: 8.5
-      dielectric: 6.2
-      dielectric_const: 3.48
-    next_composition: "SiO2:68, Al2O3:20, B2O3:12"
+      tg: 458.0
+      cte: 11.5
+      dielectric: 8.3
+      dielectric_const: 5.1
+    next_composition: "SiO2:70, Al2O3:14, B2O3:16"
+    experiment:
+      scale:
+        target_weight: 150.0
+        current_weight: 149.6
+      mixer:
+        operation_time: "30min"
+      furnace:
+        steps:
+          - { step: 1, target_temp: 750,  measured_temp: 748,  hold_time: "30min", heating_rate: 5  }
+          - { step: 2, target_temp: 1350, measured_temp: 1347, hold_time: "60min", heating_rate: 10 }
+      annealing:
+        target_temp: 450
+        stop_temp: 50
+        time: "120min"
+      press:
+        pressure: 18
+
+  - id: S-002
+    composition: "SiO2:70, Al2O3:14, B2O3:16"
+    predicted:
+      tg: 518.0
+      cte: 10.1
+      dielectric: 7.5
+      dielectric_const: 4.3
+    measurement:
+      tg: 481.0
+      cte: 10.8
+      dielectric: 7.9
+      dielectric_const: 4.7
+    next_composition: "SiO2:70, Al2O3:16, B2O3:14"
     experiment:
       scale:
         target_weight: 150.0
@@ -122,28 +156,28 @@ samples:
         operation_time: "30min"
       furnace:
         steps:
-          - { step: 1, target_temp: 800,  measured_temp: 798,  hold_time: "30min", heating_rate: 5  }
-          - { step: 2, target_temp: 1400, measured_temp: 1398, hold_time: "60min", heating_rate: 10 }
+          - { step: 1, target_temp: 750,  measured_temp: 749,  hold_time: "30min", heating_rate: 5  }
+          - { step: 2, target_temp: 1380, measured_temp: 1378, hold_time: "60min", heating_rate: 10 }
       annealing:
-        target_temp: 500
+        target_temp: 460
         stop_temp: 50
         time: "120min"
       press:
-        pressure: 20
+        pressure: 19
 
-  - id: S-002
-    composition: "SiO2:68, Al2O3:20, B2O3:12"
+  - id: S-003
+    composition: "SiO2:70, Al2O3:16, B2O3:14"
     predicted:
-      tg: 522.0
-      cte: 8.4
-      dielectric: 6.1
-      dielectric_const: 3.3
+      tg: 515.0
+      cte: 9.8
+      dielectric: 7.3
+      dielectric_const: 4.1
     measurement:
-      tg: 525.1
-      cte: 8.6
-      dielectric: 6.3
-      dielectric_const: 3.42
-    next_composition: "SiO2:66, Al2O3:22, B2O3:12"
+      tg: 503.0
+      cte: 10.1
+      dielectric: 7.5
+      dielectric_const: 4.3
+    next_composition: "SiO2:70, Al2O3:18, B2O3:12"
     experiment:
       scale:
         target_weight: 150.0
@@ -152,88 +186,58 @@ samples:
         operation_time: "30min"
       furnace:
         steps:
-          - { step: 1, target_temp: 800,  measured_temp: 801,  hold_time: "30min", heating_rate: 5  }
-          - { step: 2, target_temp: 1400, measured_temp: 1402, hold_time: "60min", heating_rate: 10 }
+          - { step: 1, target_temp: 780,  measured_temp: 779,  hold_time: "30min", heating_rate: 5  }
+          - { step: 2, target_temp: 1400, measured_temp: 1398, hold_time: "60min", heating_rate: 10 }
       annealing:
-        target_temp: 500
-        stop_temp: 50
-        time: "120min"
-      press:
-        pressure: 20
-
-  - id: S-003
-    composition: "SiO2:66, Al2O3:22, B2O3:12"
-    predicted:
-      tg: 530.0
-      cte: 8.6
-      dielectric: 6.25
-      dielectric_const: 3.35
-    measurement:
-      tg: 528.4
-      cte: 8.55
-      dielectric: 6.18
-      dielectric_const: 3.38
-    next_composition: "SiO2:64, Al2O3:24, B2O3:12"
-    experiment:
-      scale:
-        target_weight: 150.0
-        current_weight: 149.9
-      mixer:
-        operation_time: "30min"
-      furnace:
-        steps:
-          - { step: 1, target_temp: 800,  measured_temp: 799,  hold_time: "30min", heating_rate: 5  }
-          - { step: 2, target_temp: 1400, measured_temp: 1401, hold_time: "60min", heating_rate: 10 }
-      annealing:
-        target_temp: 500
+        target_temp: 470
         stop_temp: 50
         time: "120min"
       press:
         pressure: 20
 
   - id: S-004
-    composition: "SiO2:64, Al2O3:24, B2O3:12"
+    composition: "SiO2:70, Al2O3:18, B2O3:12"
     predicted:
-      tg: 518.0
-      cte: 8.3
-      dielectric: 6.05
-      dielectric_const: 3.28
+      tg: 530.0
+      cte: 9.2
+      dielectric: 6.9
+      dielectric_const: 3.8
     measurement:
-      tg: 521.7
-      cte: 8.45
-      dielectric: 6.15
-      dielectric_const: 3.45
-    next_composition: "SiO2:72, Al2O3:16, B2O3:12"
+      tg: 523.0
+      cte: 9.4
+      dielectric: 7.0
+      dielectric_const: 3.9
+    next_composition: "SiO2:70, Al2O3:19, B2O3:11"
     experiment:
       scale:
         target_weight: 150.0
-        current_weight: 149.7
+        current_weight: 149.9
       mixer:
-        operation_time: "35min"
+        operation_time: "32min"
       furnace:
         steps:
-          - { step: 1, target_temp: 800,  measured_temp: 797,  hold_time: "30min", heating_rate: 5  }
-          - { step: 2, target_temp: 1400, measured_temp: 1399, hold_time: "60min", heating_rate: 10 }
+          - { step: 1, target_temp: 800,  measured_temp: 799,  hold_time: "30min", heating_rate: 5  }
+          - { step: 2, target_temp: 1420, measured_temp: 1419, hold_time: "60min", heating_rate: 10 }
       annealing:
-        target_temp: 500
+        target_temp: 490
         stop_temp: 50
         time: "120min"
       press:
-        pressure: 22
+        pressure: 20
 
   - id: S-005
-    composition: "SiO2:72, Al2O3:16, B2O3:12"
+    composition: "SiO2:70, Al2O3:19, B2O3:11"
     predicted:
-      tg: 510.0
-      cte: 8.1
-      dielectric: 5.95
-      dielectric_const: 3.18
+      tg: 544.0
+      cte: 8.7
+      dielectric: 6.55
+      dielectric_const: 3.48
     measurement:
-      tg: 513.2
-      cte: 8.2
-      dielectric: 6.0
-      dielectric_const: 3.22
-    next_composition: "SiO2:70, Al2O3:18, B2O3:10, CaO:2"
+      tg: 540.0
+      cte: 8.8
+      dielectric: 6.6
+      dielectric_const: 3.5
+    next_composition: "SiO2:70, Al2O3:20, B2O3:10"
     experiment:
       scale:
         target_weight: 150.0
@@ -243,67 +247,7 @@ samples:
       furnace:
         steps:
           - { step: 1, target_temp: 800,  measured_temp: 800,  hold_time: "30min", heating_rate: 5  }
-          - { step: 2, target_temp: 1400, measured_temp: 1400, hold_time: "60min", heating_rate: 10 }
-      annealing:
-        target_temp: 500
-        stop_temp: 50
-        time: "120min"
-      press:
-        pressure: 20
-
-  - id: S-006
-    composition: "SiO2:70, Al2O3:18, B2O3:10, CaO:2"
-    predicted:
-      tg: 519.0
-      cte: 8.45
-      dielectric: 6.15
-      dielectric_const: 3.4
-    measurement:
-      tg: 522.0
-      cte: 8.5
-      dielectric: 6.22
-      dielectric_const: 3.44
-    next_composition: "SiO2:70, Al2O3:17, B2O3:10, CaO:3"
-    experiment:
-      scale:
-        target_weight: 150.0
-        current_weight: 149.9
-      mixer:
-        operation_time: "30min"
-      furnace:
-        steps:
-          - { step: 1, target_temp: 800,  measured_temp: 799,  hold_time: "30min", heating_rate: 5  }
-          - { step: 2, target_temp: 1400, measured_temp: 1398, hold_time: "60min", heating_rate: 10 }
-      annealing:
-        target_temp: 500
-        stop_temp: 50
-        time: "120min"
-      press:
-        pressure: 20
-
-  - id: S-007
-    composition: "SiO2:70, Al2O3:17, B2O3:10, CaO:3"
-    predicted:
-      tg: 521.0
-      cte: 8.48
-      dielectric: 6.18
-      dielectric_const: 3.42
-    measurement:
-      tg: 519.8
-      cte: 8.52
-      dielectric: 6.21
-      dielectric_const: 3.47
-    next_composition: "SiO2:69, Al2O3:18, B2O3:10, CaO:3"
-    experiment:
-      scale:
-        target_weight: 150.0
-        current_weight: 150.0
-      mixer:
-        operation_time: "30min"
-      furnace:
-        steps:
-          - { step: 1, target_temp: 800,  measured_temp: 800,  hold_time: "30min", heating_rate: 5  }
-          - { step: 2, target_temp: 1400, measured_temp: 1400, hold_time: "60min", heating_rate: 10 }
+          - { step: 2, target_temp: 1450, measured_temp: 1449, hold_time: "60min", heating_rate: 10 }
       annealing:
         target_temp: 500
         stop_temp: 50
@@ -311,19 +255,19 @@ samples:
       press:
         pressure: 21
 
-  - id: S-008
-    composition: "SiO2:69, Al2O3:18, B2O3:10, CaO:3"
+  - id: S-006
+    composition: "SiO2:70, Al2O3:20, B2O3:10"
     predicted:
-      tg: 520.5
-      cte: 8.49
-      dielectric: 6.19
-      dielectric_const: 3.44
+      tg: 555.0
+      cte: 8.18
+      dielectric: 6.28
+      dielectric_const: 3.18
     measurement:
-      tg: 520.1
-      cte: 8.50
-      dielectric: 6.20
-      dielectric_const: 3.49
-    next_composition: "SiO2:68, Al2O3:19, B2O3:10, CaO:3"
+      tg: 553.0
+      cte: 8.2
+      dielectric: 6.3
+      dielectric_const: 3.2
+    next_composition: "SiO2:71, Al2O3:21, B2O3:8"
     experiment:
       scale:
         target_weight: 150.0
@@ -332,28 +276,88 @@ samples:
         operation_time: "30min"
       furnace:
         steps:
-          - { step: 1, target_temp: 800,  measured_temp: 800,  hold_time: "30min", heating_rate: 5  }
-          - { step: 2, target_temp: 1400, measured_temp: 1399, hold_time: "60min", heating_rate: 10 }
+          - { step: 1, target_temp: 820,  measured_temp: 820,  hold_time: "30min", heating_rate: 5  }
+          - { step: 2, target_temp: 1480, measured_temp: 1479, hold_time: "60min", heating_rate: 10 }
       annealing:
-        target_temp: 500
+        target_temp: 510
         stop_temp: 50
         time: "120min"
       press:
-        pressure: 20
+        pressure: 22
+
+  - id: S-007
+    composition: "SiO2:71, Al2O3:21, B2O3:8"
+    predicted:
+      tg: 564.0
+      cte: 7.82
+      dielectric: 6.08
+      dielectric_const: 2.98
+    measurement:
+      tg: 563.0
+      cte: 7.8
+      dielectric: 6.1
+      dielectric_const: 3.0
+    next_composition: "SiO2:72, Al2O3:22, B2O3:6"
+    experiment:
+      scale:
+        target_weight: 150.0
+        current_weight: 150.0
+      mixer:
+        operation_time: "30min"
+      furnace:
+        steps:
+          - { step: 1, target_temp: 830,  measured_temp: 830,  hold_time: "30min", heating_rate: 5  }
+          - { step: 2, target_temp: 1500, measured_temp: 1500, hold_time: "60min", heating_rate: 10 }
+      annealing:
+        target_temp: 520
+        stop_temp: 50
+        time: "120min"
+      press:
+        pressure: 22
+
+  - id: S-008
+    composition: "SiO2:72, Al2O3:22, B2O3:6"
+    predicted:
+      tg: 572.0
+      cte: 7.52
+      dielectric: 5.92
+      dielectric_const: 2.82
+    measurement:
+      tg: 572.0
+      cte: 7.5
+      dielectric: 5.94
+      dielectric_const: 2.8
+    next_composition: "SiO2:72, Al2O3:23, B2O3:5"
+    experiment:
+      scale:
+        target_weight: 150.0
+        current_weight: 150.0
+      mixer:
+        operation_time: "30min"
+      furnace:
+        steps:
+          - { step: 1, target_temp: 840,  measured_temp: 840,  hold_time: "30min", heating_rate: 5  }
+          - { step: 2, target_temp: 1520, measured_temp: 1520, hold_time: "60min", heating_rate: 10 }
+      annealing:
+        target_temp: 530
+        stop_temp: 50
+        time: "120min"
+      press:
+        pressure: 22
 
   - id: S-009
-    composition: "SiO2:68, Al2O3:19, B2O3:10, CaO:3"
+    composition: "SiO2:72, Al2O3:23, B2O3:5"
     predicted:
-      tg: 519.5
-      cte: 8.51
-      dielectric: 6.21
-      dielectric_const: 3.46
+      tg: 577.0
+      cte: 7.32
+      dielectric: 5.84
+      dielectric_const: 2.70
     measurement:
-      tg: 520.8
-      cte: 8.48
-      dielectric: 6.19
-      dielectric_const: 3.50
-    next_composition: "SiO2:68, Al2O3:18, B2O3:11, CaO:3"
+      tg: 577.0
+      cte: 7.3
+      dielectric: 5.86
+      dielectric_const: 2.68
+    next_composition: "SiO2:73, Al2O3:23, B2O3:4"
     experiment:
       scale:
         target_weight: 150.0
@@ -362,28 +366,28 @@ samples:
         operation_time: "30min"
       furnace:
         steps:
-          - { step: 1, target_temp: 800,  measured_temp: 799,  hold_time: "30min", heating_rate: 5  }
-          - { step: 2, target_temp: 1400, measured_temp: 1401, hold_time: "60min", heating_rate: 10 }
+          - { step: 1, target_temp: 840,  measured_temp: 841,  hold_time: "30min", heating_rate: 5  }
+          - { step: 2, target_temp: 1530, measured_temp: 1530, hold_time: "60min", heating_rate: 10 }
       annealing:
-        target_temp: 500
+        target_temp: 540
         stop_temp: 50
         time: "120min"
       press:
-        pressure: 20
+        pressure: 22
 
   - id: S-010
-    composition: "SiO2:68, Al2O3:18, B2O3:11, CaO:3"
+    composition: "SiO2:73, Al2O3:23, B2O3:4"
     predicted:
-      tg: 520.0
-      cte: 8.50
-      dielectric: 6.20
-      dielectric_const: 3.48
+      tg: 579.0
+      cte: 7.22
+      dielectric: 5.81
+      dielectric_const: 2.63
     measurement:
-      tg: 520.0
-      cte: 8.50
-      dielectric: 6.20
-      dielectric_const: 3.50
-    next_composition: "SiO2:67, Al2O3:19, B2O3:11, CaO:3"
+      tg: 579.0
+      cte: 7.22
+      dielectric: 5.82
+      dielectric_const: 2.62
+    next_composition: "SiO2:73, Al2O3:24, B2O3:3"
     experiment:
       scale:
         target_weight: 150.0
@@ -392,28 +396,28 @@ samples:
         operation_time: "30min"
       furnace:
         steps:
-          - { step: 1, target_temp: 800,  measured_temp: 800,  hold_time: "30min", heating_rate: 5  }
-          - { step: 2, target_temp: 1400, measured_temp: 1400, hold_time: "60min", heating_rate: 10 }
+          - { step: 1, target_temp: 850,  measured_temp: 850,  hold_time: "30min", heating_rate: 5  }
+          - { step: 2, target_temp: 1540, measured_temp: 1540, hold_time: "60min", heating_rate: 10 }
       annealing:
-        target_temp: 500
+        target_temp: 550
         stop_temp: 50
         time: "120min"
       press:
-        pressure: 20
+        pressure: 22
 
   - id: S-011
-    composition: "SiO2:67, Al2O3:19, B2O3:11, CaO:3"
+    composition: "SiO2:73, Al2O3:24, B2O3:3"
     predicted:
-      tg: 521.0
-      cte: 8.51
-      dielectric: 6.21
-      dielectric_const: 3.49
+      tg: 580.0
+      cte: 7.20
+      dielectric: 5.80
+      dielectric_const: 2.60
     measurement:
-      tg: 520.5
-      cte: 8.50
-      dielectric: 6.20
-      dielectric_const: 3.50
-    next_composition: "SiO2:67, Al2O3:19, B2O3:10, CaO:4"
+      tg: 580.5
+      cte: 7.19
+      dielectric: 5.79
+      dielectric_const: 2.59
+    next_composition: "SiO2:74, Al2O3:23, B2O3:3"
     experiment:
       scale:
         target_weight: 150.0
@@ -422,88 +426,88 @@ samples:
         operation_time: "30min"
       furnace:
         steps:
-          - { step: 1, target_temp: 800,  measured_temp: 800,  hold_time: "30min", heating_rate: 5  }
-          - { step: 2, target_temp: 1400, measured_temp: 1400, hold_time: "60min", heating_rate: 10 }
+          - { step: 1, target_temp: 850,  measured_temp: 850,  hold_time: "30min", heating_rate: 5  }
+          - { step: 2, target_temp: 1540, measured_temp: 1540, hold_time: "60min", heating_rate: 10 }
       annealing:
-        target_temp: 500
+        target_temp: 550
         stop_temp: 50
         time: "120min"
       press:
-        pressure: 20
+        pressure: 22
 
   - id: S-012
-    composition: "SiO2:67, Al2O3:19, B2O3:10, CaO:4"
+    composition: "SiO2:74, Al2O3:23, B2O3:3"
     predicted:
-      tg: 522.0
-      cte: 8.52
-      dielectric: 6.22
-      dielectric_const: 3.50
+      tg: 580.0
+      cte: 7.20
+      dielectric: 5.80
+      dielectric_const: 2.60
     measurement:
-      tg: 521.0
-      cte: 8.51
-      dielectric: 6.21
-      dielectric_const: 3.51
-    next_composition: "SiO2:66, Al2O3:20, B2O3:10, CaO:4"
+      tg: 579.8
+      cte: 7.21
+      dielectric: 5.80
+      dielectric_const: 2.60
+    next_composition: "SiO2:73, Al2O3:24, B2O3:3"
     experiment:
       scale:
         target_weight: 150.0
         current_weight: 150.0
       mixer:
-        operation_time: "32min"
+        operation_time: "30min"
       furnace:
         steps:
-          - { step: 1, target_temp: 800,  measured_temp: 800,  hold_time: "30min", heating_rate: 5  }
-          - { step: 2, target_temp: 1400, measured_temp: 1400, hold_time: "60min", heating_rate: 10 }
+          - { step: 1, target_temp: 850,  measured_temp: 850,  hold_time: "30min", heating_rate: 5  }
+          - { step: 2, target_temp: 1540, measured_temp: 1540, hold_time: "60min", heating_rate: 10 }
       annealing:
-        target_temp: 500
+        target_temp: 550
         stop_temp: 50
         time: "120min"
       press:
-        pressure: 20
+        pressure: 22
 
   - id: S-013
-    composition: "SiO2:66, Al2O3:20, B2O3:10, CaO:4"
+    composition: "SiO2:73, Al2O3:24, B2O3:3"
     predicted:
-      tg: 519.0
-      cte: 8.49
-      dielectric: 6.19
-      dielectric_const: 3.48
+      tg: 580.0
+      cte: 7.20
+      dielectric: 5.80
+      dielectric_const: 2.60
     measurement:
-      tg: 520.2
-      cte: 8.50
-      dielectric: 6.20
-      dielectric_const: 3.49
-    next_composition: "SiO2:65, Al2O3:21, B2O3:10, CaO:4"
+      tg: 580.2
+      cte: 7.20
+      dielectric: 5.81
+      dielectric_const: 2.61
+    next_composition: "SiO2:73, Al2O3:24, B2O3:3"
     experiment:
       scale:
         target_weight: 150.0
-        current_weight: 149.9
+        current_weight: 150.0
       mixer:
         operation_time: "30min"
       furnace:
         steps:
-          - { step: 1, target_temp: 800,  measured_temp: 799,  hold_time: "30min", heating_rate: 5  }
-          - { step: 2, target_temp: 1400, measured_temp: 1400, hold_time: "60min", heating_rate: 10 }
+          - { step: 1, target_temp: 850,  measured_temp: 850,  hold_time: "30min", heating_rate: 5  }
+          - { step: 2, target_temp: 1540, measured_temp: 1540, hold_time: "60min", heating_rate: 10 }
       annealing:
-        target_temp: 500
+        target_temp: 550
         stop_temp: 50
         time: "120min"
       press:
-        pressure: 20
+        pressure: 22
 
   - id: S-014
-    composition: "SiO2:65, Al2O3:21, B2O3:10, CaO:4"
+    composition: "SiO2:73, Al2O3:24, B2O3:3"
     predicted:
-      tg: 520.0
-      cte: 8.50
-      dielectric: 6.20
-      dielectric_const: 3.50
+      tg: 580.0
+      cte: 7.20
+      dielectric: 5.80
+      dielectric_const: 2.60
     measurement:
-      tg: 520.0
-      cte: 8.50
-      dielectric: 6.20
-      dielectric_const: 3.50
-    next_composition: "SiO2:65, Al2O3:20, B2O3:11, CaO:4"
+      tg: 580.0
+      cte: 7.20
+      dielectric: 5.80
+      dielectric_const: 2.60
+    next_composition: "SiO2:73, Al2O3:24, B2O3:3"
     experiment:
       scale:
         target_weight: 150.0
@@ -512,28 +516,28 @@ samples:
         operation_time: "30min"
       furnace:
         steps:
-          - { step: 1, target_temp: 800,  measured_temp: 800,  hold_time: "30min", heating_rate: 5  }
-          - { step: 2, target_temp: 1400, measured_temp: 1400, hold_time: "60min", heating_rate: 10 }
+          - { step: 1, target_temp: 850,  measured_temp: 850,  hold_time: "30min", heating_rate: 5  }
+          - { step: 2, target_temp: 1540, measured_temp: 1540, hold_time: "60min", heating_rate: 10 }
       annealing:
-        target_temp: 500
+        target_temp: 550
         stop_temp: 50
         time: "120min"
       press:
-        pressure: 20
+        pressure: 22
 
   - id: S-015
-    composition: "SiO2:65, Al2O3:20, B2O3:11, CaO:4"
+    composition: "SiO2:73, Al2O3:24, B2O3:3"
     predicted:
-      tg: 519.5
-      cte: 8.49
-      dielectric: 6.19
-      dielectric_const: 3.49
+      tg: 580.0
+      cte: 7.20
+      dielectric: 5.80
+      dielectric_const: 2.60
     measurement:
-      tg: 520.1
-      cte: 8.50
-      dielectric: 6.20
-      dielectric_const: 3.50
-    next_composition: "SiO2:64, Al2O3:21, B2O3:11, CaO:4"
+      tg: 580.0
+      cte: 7.20
+      dielectric: 5.80
+      dielectric_const: 2.60
+    next_composition: "SiO2:73, Al2O3:24, B2O3:3"
     experiment:
       scale:
         target_weight: 150.0
@@ -542,28 +546,28 @@ samples:
         operation_time: "30min"
       furnace:
         steps:
-          - { step: 1, target_temp: 800,  measured_temp: 800,  hold_time: "30min", heating_rate: 5  }
-          - { step: 2, target_temp: 1400, measured_temp: 1400, hold_time: "60min", heating_rate: 10 }
+          - { step: 1, target_temp: 850,  measured_temp: 850,  hold_time: "30min", heating_rate: 5  }
+          - { step: 2, target_temp: 1540, measured_temp: 1540, hold_time: "60min", heating_rate: 10 }
       annealing:
-        target_temp: 500
+        target_temp: 550
         stop_temp: 50
         time: "120min"
       press:
-        pressure: 20
+        pressure: 22
 
   - id: S-016
-    composition: "SiO2:64, Al2O3:21, B2O3:11, CaO:4"
+    composition: "SiO2:73, Al2O3:24, B2O3:3"
     predicted:
-      tg: 520.8
-      cte: 8.51
-      dielectric: 6.21
-      dielectric_const: 3.51
+      tg: 580.0
+      cte: 7.20
+      dielectric: 5.80
+      dielectric_const: 2.60
     measurement:
-      tg: 519.5
-      cte: 8.49
-      dielectric: 6.19
-      dielectric_const: 3.49
-    next_composition: "SiO2:64, Al2O3:20, B2O3:12, CaO:4"
+      tg: 580.0
+      cte: 7.20
+      dielectric: 5.80
+      dielectric_const: 2.60
+    next_composition: "SiO2:73, Al2O3:24, B2O3:3"
     experiment:
       scale:
         target_weight: 150.0
@@ -572,28 +576,28 @@ samples:
         operation_time: "30min"
       furnace:
         steps:
-          - { step: 1, target_temp: 800,  measured_temp: 800,  hold_time: "30min", heating_rate: 5  }
-          - { step: 2, target_temp: 1400, measured_temp: 1400, hold_time: "60min", heating_rate: 10 }
+          - { step: 1, target_temp: 850,  measured_temp: 850,  hold_time: "30min", heating_rate: 5  }
+          - { step: 2, target_temp: 1540, measured_temp: 1540, hold_time: "60min", heating_rate: 10 }
       annealing:
-        target_temp: 500
+        target_temp: 550
         stop_temp: 50
         time: "120min"
       press:
-        pressure: 20
+        pressure: 22
 
   - id: S-017
-    composition: "SiO2:64, Al2O3:20, B2O3:12, CaO:4"
+    composition: "SiO2:73, Al2O3:24, B2O3:3"
     predicted:
-      tg: 520.0
-      cte: 8.50
-      dielectric: 6.20
-      dielectric_const: 3.50
+      tg: 580.0
+      cte: 7.20
+      dielectric: 5.80
+      dielectric_const: 2.60
     measurement:
-      tg: 520.0
-      cte: 8.50
-      dielectric: 6.20
-      dielectric_const: 3.50
-    next_composition: "SiO2:63, Al2O3:21, B2O3:12, CaO:4"
+      tg: 580.0
+      cte: 7.20
+      dielectric: 5.80
+      dielectric_const: 2.60
+    next_composition: "SiO2:73, Al2O3:24, B2O3:3"
     experiment:
       scale:
         target_weight: 150.0
@@ -602,28 +606,28 @@ samples:
         operation_time: "30min"
       furnace:
         steps:
-          - { step: 1, target_temp: 800,  measured_temp: 800,  hold_time: "30min", heating_rate: 5  }
-          - { step: 2, target_temp: 1400, measured_temp: 1400, hold_time: "60min", heating_rate: 10 }
+          - { step: 1, target_temp: 850,  measured_temp: 850,  hold_time: "30min", heating_rate: 5  }
+          - { step: 2, target_temp: 1540, measured_temp: 1540, hold_time: "60min", heating_rate: 10 }
       annealing:
-        target_temp: 500
+        target_temp: 550
         stop_temp: 50
         time: "120min"
       press:
-        pressure: 20
+        pressure: 22
 
   - id: S-018
-    composition: "SiO2:63, Al2O3:21, B2O3:12, CaO:4"
+    composition: "SiO2:73, Al2O3:24, B2O3:3"
     predicted:
-      tg: 521.0
-      cte: 8.51
-      dielectric: 6.21
-      dielectric_const: 3.51
+      tg: 580.0
+      cte: 7.20
+      dielectric: 5.80
+      dielectric_const: 2.60
     measurement:
-      tg: 520.5
-      cte: 8.50
-      dielectric: 6.20
-      dielectric_const: 3.50
-    next_composition: "SiO2:62, Al2O3:22, B2O3:12, CaO:4"
+      tg: 580.0
+      cte: 7.20
+      dielectric: 5.80
+      dielectric_const: 2.60
+    next_composition: "SiO2:73, Al2O3:24, B2O3:3"
     experiment:
       scale:
         target_weight: 150.0
@@ -632,58 +636,28 @@ samples:
         operation_time: "30min"
       furnace:
         steps:
-          - { step: 1, target_temp: 800,  measured_temp: 800,  hold_time: "30min", heating_rate: 5  }
-          - { step: 2, target_temp: 1400, measured_temp: 1400, hold_time: "60min", heating_rate: 10 }
+          - { step: 1, target_temp: 850,  measured_temp: 850,  hold_time: "30min", heating_rate: 5  }
+          - { step: 2, target_temp: 1540, measured_temp: 1540, hold_time: "60min", heating_rate: 10 }
       annealing:
-        target_temp: 500
+        target_temp: 550
         stop_temp: 50
         time: "120min"
       press:
-        pressure: 20
+        pressure: 22
 
   - id: S-019
-    composition: "SiO2:62, Al2O3:22, B2O3:12, CaO:4"
+    composition: "SiO2:73, Al2O3:24, B2O3:3"
     predicted:
-      tg: 519.5
-      cte: 8.49
-      dielectric: 6.19
-      dielectric_const: 3.49
+      tg: 580.0
+      cte: 7.20
+      dielectric: 5.80
+      dielectric_const: 2.60
     measurement:
-      tg: 520.0
-      cte: 8.50
-      dielectric: 6.20
-      dielectric_const: 3.50
-    next_composition: "SiO2:61, Al2O3:23, B2O3:12, CaO:4"
-    experiment:
-      scale:
-        target_weight: 150.0
-        current_weight: 149.9
-      mixer:
-        operation_time: "30min"
-      furnace:
-        steps:
-          - { step: 1, target_temp: 800,  measured_temp: 800,  hold_time: "30min", heating_rate: 5  }
-          - { step: 2, target_temp: 1400, measured_temp: 1400, hold_time: "60min", heating_rate: 10 }
-      annealing:
-        target_temp: 500
-        stop_temp: 50
-        time: "120min"
-      press:
-        pressure: 20
-
-  - id: S-020
-    composition: "SiO2:61, Al2O3:23, B2O3:12, CaO:4"
-    predicted:
-      tg: 520.0
-      cte: 8.50
-      dielectric: 6.20
-      dielectric_const: 3.50
-    measurement:
-      tg: 520.0
-      cte: 8.50
-      dielectric: 6.20
-      dielectric_const: 3.50
-    next_composition: "SiO2:60, Al2O3:24, B2O3:12, CaO:4"
+      tg: 580.0
+      cte: 7.20
+      dielectric: 5.80
+      dielectric_const: 2.60
+    next_composition: "SiO2:73, Al2O3:24, B2O3:3"
     experiment:
       scale:
         target_weight: 150.0
@@ -692,11 +666,41 @@ samples:
         operation_time: "30min"
       furnace:
         steps:
-          - { step: 1, target_temp: 800,  measured_temp: 800,  hold_time: "30min", heating_rate: 5  }
-          - { step: 2, target_temp: 1400, measured_temp: 1400, hold_time: "60min", heating_rate: 10 }
+          - { step: 1, target_temp: 850,  measured_temp: 850,  hold_time: "30min", heating_rate: 5  }
+          - { step: 2, target_temp: 1540, measured_temp: 1540, hold_time: "60min", heating_rate: 10 }
       annealing:
-        target_temp: 500
+        target_temp: 550
         stop_temp: 50
         time: "120min"
       press:
-        pressure: 20
+        pressure: 22
+
+  - id: S-020
+    composition: "SiO2:73, Al2O3:24, B2O3:3"
+    predicted:
+      tg: 580.0
+      cte: 7.20
+      dielectric: 5.80
+      dielectric_const: 2.60
+    measurement:
+      tg: 580.0
+      cte: 7.20
+      dielectric: 5.80
+      dielectric_const: 2.60
+    next_composition: "SiO2:73, Al2O3:24, B2O3:3"
+    experiment:
+      scale:
+        target_weight: 150.0
+        current_weight: 150.0
+      mixer:
+        operation_time: "30min"
+      furnace:
+        steps:
+          - { step: 1, target_temp: 850,  measured_temp: 850,  hold_time: "30min", heating_rate: 5  }
+          - { step: 2, target_temp: 1540, measured_temp: 1540, hold_time: "60min", heating_rate: 10 }
+      annealing:
+        target_temp: 550
+        stop_temp: 50
+        time: "120min"
+      press:
+        pressure: 22

@@ -1,12 +1,12 @@
 <template>
-  <div class="device-card q-pa-sm" :class="active ? 'active' : 'inactive'" style="min-width: 158px; max-width: 195px">
+  <div class="device-card q-pa-sm" :class="active ? 'active' : 'inactive'" style="min-width: 200px; max-width: 240px">
     <!-- Header: LED + name [space] icon -->
     <div class="row items-center q-mb-xs" style="gap: 5px">
       <span class="led" :class="active ? (device.connected ? 'green' : 'red') : 'gray'" />
       <span style="font-size: 12px; font-weight: 700; color: #e2e8f0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1">
         {{ device.name }}
       </span>
-      <q-icon :name="deviceIcon" size="24px" :style="{ color: active ? '#615fff' : '#4b5563' }" />
+      <q-icon :name="deviceIcon" size="30px" :style="{ color: active ? '#615fff' : '#4b5563' }" />
     </div>
 
     <!-- Model -->

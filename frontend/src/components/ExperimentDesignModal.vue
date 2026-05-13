@@ -10,16 +10,6 @@
       <q-separator color="blue-grey-8" />
 
       <q-card-section class="q-pt-md">
-        <!-- 샘플 ID -->
-        <q-input
-          v-model="form.sampleId"
-          label="ID (샘플명)"
-          outlined dense dark
-          class="q-mb-md"
-          label-color="blue-grey-4"
-          hint="테이블 ID 열에 표시됩니다"
-        />
-
         <!-- 조성 입력 (산화물 드롭다운 + wt%) -->
         <q-separator color="blue-grey-8" class="q-mb-sm" />
         <div class="text-caption q-mb-sm" style="color: #64748b; text-transform: uppercase; letter-spacing: 0.06em">
@@ -141,7 +131,6 @@ const experimentStore = useExperimentStore()
 const configStore     = useConfigStore()
 
 const defaultForm = () => ({
-  sampleId: '',
   oxides: [{ oxide: 'SiO2', wt: 0 }] as OxideRow[],
   targetTg: 0,
   targetCte: 0,
@@ -217,10 +206,8 @@ const previewItems = computed(() => {
   ]
 })
 
-// ID 입력 + wt% 합계 100% 모두 충족해야 확인 버튼 활성화
-const isValid = computed(
-  () => form.value.sampleId.trim().length > 0 && sumOk.value
-)
+// wt% 합계 100%이면 확인 버튼 활성화 (ID는 자동 생성)
+const isValid = computed(() => sumOk.value)
 
 function confirm() {
   if (!isValid.value) return
@@ -235,7 +222,6 @@ function confirm() {
 
   const sample = linkedSample.value
   experimentStore.design({
-    id:          form.value.sampleId.trim(),
     composition: compositionStr.value,
     predicted: sample
       ? { tg: sample.predicted.tg, cte: sample.predicted.cte, dielectric: sample.predicted.dielectric, dielectric_const: sample.predicted.dielectric_const }

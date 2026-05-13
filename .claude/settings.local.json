@@ -1,0 +1,41 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(npm *)",
+      "PowerShell(py *)",
+      "PowerShell(& \"C:\\\\Users\\\\Administrator\\\\AppData\\\\Local\\\\Microsoft\\\\WindowsApps\\\\python3.exe\" --version 2>&1)",
+      "PowerShell(& \"C:\\\\ProgramData\\\\miniconda3\\\\python.exe\" --version 2>&1)",
+      "PowerShell(& \"C:\\\\ProgramData\\\\miniconda3\\\\python.exe\" -m pip --version 2>&1)",
+      "PowerShell(pnpm *)",
+      "PowerShell($env:DEMO_CONFIG_PATH = \"C:\\\\JUNHA\\\\11.code\\\\project\\\\demoday\\\\config\\\\demo_data.yaml\"; Set-Location \"C:\\\\JUNHA\\\\11.code\\\\project\\\\demoday\\\\backend\"; Start-Process -FilePath \"C:\\\\ProgramData\\\\miniconda3\\\\python.exe\" -ArgumentList \"-m uvicorn app.main:app --port 7860\" -NoNewWindow -PassThru | ForEach-Object { $_.Id })",
+      "PowerShell(Start-Sleep -Seconds 3; Invoke-WebRequest -Uri \"http://localhost:7860/health\" -UseBasicParsing -ErrorAction SilentlyContinue | Select-Object StatusCode, Content)",
+      "PowerShell(Invoke-RestMethod -Uri \"http://localhost:7860/health\" -ErrorAction SilentlyContinue)",
+      "PowerShell($env:DEMO_CONFIG_PATH = \"C:\\\\JUNHA\\\\11.code\\\\project\\\\demoday\\\\config\\\\demo_data.yaml\"; Set-Location \"C:\\\\JUNHA\\\\11.code\\\\project\\\\demoday\\\\backend\"; & \"C:\\\\ProgramData\\\\miniconda3\\\\python.exe\" -m uvicorn app.main:app --port 7860 2>&1 | Select-Object -First 10)",
+      "PowerShell(try { $r = Invoke-RestMethod -Uri \"http://localhost:7860/health\" -TimeoutSec 5; $r } catch { \"Error: $_\" })",
+      "PowerShell($result = [System.Net.WebClient]::new\\(\\).DownloadString\\(\"http://localhost:7860/health\"\\); $result)",
+      "PowerShell($r = [System.Net.WebClient]::new\\(\\).DownloadString\\(\"http://localhost:7860/api/config\"\\); $r | ConvertFrom-Json | Select-Object -Property timing, auto_tune_enabled | Format-List)",
+      "PowerShell(Get-Process *)",
+      "PowerShell(Out-Null *)",
+      "PowerShell($idx = [System.Net.WebClient]::new\\(\\).DownloadString\\(\"http://localhost:7860/\"\\); Write-Host \"SPA fallback length: $\\($idx.Length\\) chars\"; Write-Host \\($idx | Select-String -Pattern \"WS Lab|quasar|index\" | Select-Object -First 3\\))",
+      "PowerShell(New-Item *)",
+      "PowerShell(& \"C:\\\\ProgramData\\\\miniconda3\\\\python.exe\" -m pip install httpx pytest -q 2>&1 | Select-Object -Last 5)",
+      "Bash(Get-ChildItem -Path \"C:\\\\JUNHA\\\\11.code\\\\project\\\\demoday_streamlit\" -Recurse -Force)",
+      "Bash(Select-Object FullName, PSIsContainer)",
+      "Bash(Format-Table -AutoSize)",
+      "Bash(pnpm build *)",
+      "Bash(Get-ChildItem \"C:\\\\JUNHA\\\\11.code\\\\project\\\\demoday\")",
+      "Bash(Select-Object Name, PSIsContainer)",
+      "Bash(git fetch *)",
+      "Bash(git push *)",
+      "Bash(git checkout *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git config *)",
+      "Bash(git remote *)",
+      "Bash(git commit *)",
+      "Bash(Get-ChildItem -Path \"C:\\\\JUNHA\\\\11.code\\\\project\\\\WS\" -Recurse -Force)",
+      "Bash(Select-Object FullName)",
+      "Bash(pnpm --prefix frontend build)"
+    ]
+  }
+}

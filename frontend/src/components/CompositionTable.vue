@@ -81,6 +81,39 @@
       </table>
     </div>
 
+    <!-- 튜닝 팝업: 조성 분석 중 → 추천 조성 표시 -->
+    <q-dialog v-model="tuneDialog" persistent>
+      <q-card class="tune-popup">
+        <!-- 분석 중 애니메이션 -->
+        <template v-if="tuneAnalyzing">
+          <div class="tune-title">
+            <q-icon name="biotech" size="20px" color="indigo-4" />
+            <span>조성 분석 중...</span>
+          </div>
+          <div class="dna-stage">
+            <div v-for="n in 5" :key="n" class="dna-bar" :style="`animation-delay: ${(n-1)*0.15}s`" />
+          </div>
+          <div style="font-size:12px; color:#64748b; text-align:center">실험 데이터를 기반으로 최적 조성을 계산하고 있습니다</div>
+        </template>
+
+        <!-- 추천 결과 표시 -->
+        <template v-else>
+          <div class="tune-title">
+            <q-icon name="auto_fix_high" size="20px" color="positive" />
+            <span style="color:#10b981">추천 조성</span>
+          </div>
+          <div class="tune-result">
+            <div style="font-size:11px; color:#64748b; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.06em">다음 실험 조성</div>
+            <div class="comp-chip">{{ tuneNextComp }}</div>
+          </div>
+          <div class="row justify-end q-gutter-sm q-mt-md">
+            <q-btn flat label="취소" color="grey-5" size="sm" @click="tuneDialog = false" />
+            <q-btn unelevated label="실험 설계 추가" color="indigo" size="sm" style="border-radius:6px" @click="confirmTune" />
+          </div>
+        </template>
+      </q-card>
+    </q-dialog>
+
     <!-- Global Target Card -->
     <div v-if="configStore.config" class="target-card">
       <div style="font-size:11px; font-weight:700; color:#94a3b8; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:12px">
@@ -98,15 +131,21 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import { useExperimentStore, type SampleRow } from 'src/stores/experiment'
-import { useConfigStore } from 'src/stores/config'
+import { useConfigStore, type Sample } from 'src/stores/config'
 import ExperimentBanner from './ExperimentBanner.vue'
 
 type Prop4Key = 'tg' | 'cte' | 'dielectric' | 'dielectric_const'
 
 const experimentStore = useExperimentStore()
 const configStore = useConfigStore()
+
+// ── 튜닝 팝업 상태 ──
+const tuneDialog      = ref(false)
+const tuneAnalyzing   = ref(true)   // true: 분석 중 / false: 추천 결과 표시
+const tuneNextSample  = ref<Sample | null>(null)
+const tuneNextComp    = ref('')
 
 const targetItems = computed(() => {
   const gt = configStore.config?.global_target
@@ -135,6 +174,7 @@ function targetErr(row: SampleRow, key: Prop4Key): number | null {
   return Math.abs(m - target) / Math.abs(target)
 }
 
+// 튜닝 버튼 클릭 → 팝업 열기 + 분석 중 애니메이션 → 추천 조성 표시
 function handleTune(row: SampleRow) {
   const samples = configStore.config?.samples
   if (!samples) return
@@ -142,13 +182,82 @@ function handleTune(row: SampleRow) {
   const src = samples.find(s => s.id === srcId)
   if (!src) return
   const nextIdx = samples.indexOf(src) + 1
-  if (nextIdx < samples.length) experimentStore.addAutoTuneRow(samples[nextIdx])
+  if (nextIdx >= samples.length) return
+
+  tuneNextSample.value = samples[nextIdx]
+  tuneNextComp.value   = src.next_composition  // YAML에서 현재 샘플의 next_composition
+  tuneAnalyzing.value  = true
+  tuneDialog.value     = true
+
+  // 1.8초 분석 애니메이션 후 추천 조성 표시
+  setTimeout(() => { tuneAnalyzing.value = false }, 1800)
+}
+
+// 팝업 확인 → 다음 샘플 행 추가
+function confirmTune() {
+  if (tuneNextSample.value) {
+    experimentStore.addAutoTuneRow(tuneNextSample.value)
+  }
+  tuneDialog.value = false
 }
 </script>
 
 <style scoped>
 .measured-val { color: #22c55e; font-weight: 600; }
 .score-val    { font-weight: 700; font-size: 13px; }
+
+/* ── 튜닝 팝업 ── */
+.tune-popup {
+  background: #131e30;
+  border: 1px solid rgba(97,95,255,0.45);
+  border-radius: 14px;
+  padding: 28px 32px 22px;
+  min-width: 300px;
+}
+.tune-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #e2e8f0;
+  margin-bottom: 20px;
+  justify-content: center;
+}
+.tune-result {
+  background: rgba(97,95,255,0.06);
+  border: 1px solid rgba(97,95,255,0.2);
+  border-radius: 8px;
+  padding: 14px 16px;
+  text-align: center;
+}
+.comp-chip {
+  font-size: 15px;
+  font-weight: 700;
+  color: #e2e8f0;
+  font-family: monospace;
+  letter-spacing: 0.04em;
+}
+
+/* 분석 중 막대 애니메이션 */
+.dna-stage {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 6px;
+  height: 50px;
+  margin-bottom: 16px;
+}
+.dna-bar {
+  width: 8px;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #615fff, #10b981);
+  animation: dnaWave 0.9s ease-in-out infinite alternate;
+}
+@keyframes dnaWave {
+  0%   { height: 10px; opacity: 0.5; }
+  100% { height: 44px; opacity: 1.0; }
+}
 
 .target-item {
   display: flex;
