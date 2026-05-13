@@ -55,7 +55,7 @@ function renderCharts() {
       fill: 'tozeroy', fillcolor: 'rgba(59,130,246,0.08)',
       name: 'LIS cumulative',
     }],
-    { ...DARK_LAYOUT, title: { text: '예측 정확도 추이 (LIS)', font: { color: '#e2e8f0', size: 14 } }, yaxis: YAXIS_LIS },
+    { ...DARK_LAYOUT, title: { text: '예측 모델 영향력 추이<br><span style="font-size:11px">LIS: Learning Impact Score</span>', font: { color: '#e2e8f0', size: 14 } }, yaxis: YAXIS_LIS },
     { responsive: true }
   )
 
@@ -69,7 +69,7 @@ function renderCharts() {
       fill: 'tozeroy', fillcolor: 'rgba(16,185,129,0.08)',
       name: 'TAS per experiment',
     }],
-    { ...DARK_LAYOUT, title: { text: '목표 달성도 추이 (TAS)', font: { color: '#e2e8f0', size: 14 } }, yaxis: YAXIS_TAS },
+    { ...DARK_LAYOUT, title: { text: '목표 달성도 추이<br><span style="font-size:11px">TAS: Target Achievement Score</span>', font: { color: '#e2e8f0', size: 14 } }, yaxis: YAXIS_TAS },
     { responsive: true }
   )
 }
