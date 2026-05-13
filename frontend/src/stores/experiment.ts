@@ -33,6 +33,7 @@ export const useExperimentStore = defineStore('experiment', () => {
   const state = ref<ExperimentState>('idle')
   const currentPhase = ref<ExperimentPhase>({ deviceIndex: 0, phase: 'running' })
   const rows = ref<SampleRow[]>([])
+  const simulating = ref(false)
 
   // runId: setTimeout 체인의 stale 실행 방지용 단조 증가 카운터
   // 리셋/새 실험 시작 시 증가 → 이전 타이머 콜백이 체크 후 자동 종료됨
@@ -96,17 +97,20 @@ export const useExperimentStore = defineStore('experiment', () => {
     state.value = 'designed'
   }
 
+  function setSimulating(v: boolean) { simulating.value = v }
+
   // 전체 초기화: runId를 증가시켜 진행 중인 타이머 체인 무효화
   function reset() {
     runId++
+    simulating.value = false
     state.value = 'idle'
     currentPhase.value = { deviceIndex: 0, phase: 'running' }
     rows.value = []
   }
 
   return {
-    state, currentPhase, rows, currentRunId,
-    getRunId, incrementRunId,
+    state, currentPhase, rows, currentRunId, simulating,
+    getRunId, incrementRunId, setSimulating,
     design, startExperiment, setPhase, completeExperiment, addAutoTuneRow, reset
   }
 })

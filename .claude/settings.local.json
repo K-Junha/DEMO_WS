@@ -35,7 +35,9 @@
       "Bash(git commit *)",
       "Bash(Get-ChildItem -Path \"C:\\\\JUNHA\\\\11.code\\\\project\\\\WS\" -Recurse -Force)",
       "Bash(Select-Object FullName)",
-      "Bash(pnpm --prefix frontend build)"
+      "Bash(pnpm --prefix frontend build)",
+      "Bash(curl -s \"https://huggingface.co/api/spaces/jhkim93/ws-lab-pilot\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(d.get\\('runtime',{}\\).get\\('errorMessage','no error'\\)\\); print\\(d.get\\('runtime',{}\\).get\\('stage',''\\)\\)\")"
     ]
   }
 }

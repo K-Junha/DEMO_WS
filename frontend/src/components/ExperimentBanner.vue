@@ -8,8 +8,20 @@
         <span class="device-label">
           [{{ currentDeviceName }}]
           <span v-if="isDone" class="done-text">실험 완료</span>
+          <span v-else-if="experimentStore.currentPhase.phase === 'complete'" class="done-text">완료</span>
           <span v-else class="running-text">실험 중</span>
         </span>
+      </div>
+
+      <!-- 시뮬레이션 중지 버튼 -->
+      <div v-if="experimentStore.simulating" style="text-align: right; margin-bottom: 8px">
+        <q-btn
+          flat dense size="sm"
+          icon="stop" label="중지"
+          color="orange-4"
+          style="font-size: 11px; border: 1px solid rgba(251,146,60,0.4); border-radius: 5px; padding: 2px 8px"
+          @click="experimentStore.setSimulating(false)"
+        />
       </div>
 
       <!-- 보고서 페이지 넘기는 애니메이션 -->

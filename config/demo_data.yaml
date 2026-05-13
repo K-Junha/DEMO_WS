@@ -1,8 +1,8 @@
 timing:
-  device_activation_interval_ms: 500
-  experiment_running_ms: 500
-  experiment_complete_ms: 250
-  experiment_gap_ms: 250
+  device_activation_interval_ms: 250
+  experiment_running_ms: 250
+  experiment_complete_ms: 100
+  experiment_gap_ms: 100
 
 global_target:
   tg: 580.0

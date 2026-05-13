@@ -10,10 +10,10 @@
         <!-- 시뮬레이션 버튼: S-010까지 자동 실험 진행 -->
         <q-btn
           flat dense
-          :label="simulating ? '중지' : '시뮬레이션'"
-          :icon="simulating ? 'stop' : 'play_arrow'"
-          :color="simulating ? 'orange-4' : 'indigo-4'"
-          :style="`font-size: 12px; border: 1px solid ${simulating ? 'rgba(251,146,60,0.4)' : 'rgba(97,95,255,0.4)'}; border-radius: 6px; padding: 4px 12px; margin-right: 8px`"
+          :label="experimentStore.simulating ? '중지' : '시뮬레이션'"
+          :icon="experimentStore.simulating ? 'stop' : 'play_arrow'"
+          :color="experimentStore.simulating ? 'orange-4' : 'indigo-4'"
+          :style="`font-size: 12px; border: 1px solid ${experimentStore.simulating ? 'rgba(251,146,60,0.4)' : 'rgba(97,95,255,0.4)'}; border-radius: 6px; padding: 4px 12px; margin-right: 8px`"
           :disable="experimentStore.state === 'running'"
           @click="toggleSimulation"
         />
@@ -123,36 +123,35 @@ const trendStore = useTrendStore()
 const showModal = ref(false)
 
 // ── 자동 시뮬레이션 ──────────────────────────────────────────────────────────
-const simulating = ref(false)
 let simStopCount = 0  // 이 행 수에 도달하면 시뮬레이션 종료
 
 // 실험 완료(done) 감지 → 다음 단계 자동 진행
 watch(() => experimentStore.state, state => {
-  if (!simulating.value || state !== 'done') return
+  if (!experimentStore.simulating || state !== 'done') return
   if (experimentStore.rows.length >= simStopCount) {
-    simulating.value = false
+    experimentStore.setSimulating(false)
     return
   }
   // ExperimentBanner 팝업이 닫힐 시간(1600ms) 후 다음 실험 시작
   setTimeout(() => {
-    if (simulating.value) simNextStep()
+    if (experimentStore.simulating) simNextStep()
   }, 1800)
 })
 
 function simNextStep() {
   const samples = configStore.config?.samples ?? []
   const idx = experimentStore.rows.length
-  if (idx >= samples.length) { simulating.value = false; return }
+  if (idx >= samples.length) { experimentStore.setSimulating(false); return }
 
   experimentStore.addAutoTuneRow(samples[idx])
   setTimeout(() => {
-    if (simulating.value) experimentStore.startExperiment()
+    if (experimentStore.simulating) experimentStore.startExperiment()
   }, 100)
 }
 
 function toggleSimulation() {
-  if (simulating.value) {
-    simulating.value = false
+  if (experimentStore.simulating) {
+    experimentStore.setSimulating(false)
     return
   }
 
@@ -165,22 +164,19 @@ function toggleSimulation() {
   // 이미 S-010까지 완료된 경우
   if (experimentStore.rows.length >= simStopCount) return
 
-  simulating.value = true
+  experimentStore.setSimulating(true)
 
   const st = experimentStore.state
   if (st === 'designed') {
-    // 이미 설계된 실험이 있으면 바로 시작
     experimentStore.startExperiment()
   } else {
-    // idle / done → 다음 샘플로 설계 후 시작
     simNextStep()
   }
 }
 
 // ── 리셋 ─────────────────────────────────────────────────────────────────────
 function handleReset() {
-  simulating.value = false
-  experimentStore.reset()
+  experimentStore.reset()  // reset() 내부에서 simulating도 false로 초기화
   trendStore.reset()
 }
 
