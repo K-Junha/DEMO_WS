@@ -19,13 +19,15 @@ const lisChart = ref<HTMLElement | null>(null)
 const tasChart = ref<HTMLElement | null>(null)
 let Plotly: typeof import('plotly.js-basic-dist') | null = null
 
+const AXIS_BASE = { gridcolor: '#314158', zerolinecolor: '#314158', tickfont: { color: '#64748b' } }
+
 const DARK_LAYOUT = {
   paper_bgcolor: '#1d293d',
   plot_bgcolor:  '#162032',
   font:  { color: '#94a3b8', size: 12 },
-  xaxis: { title: 'Num of Samples', gridcolor: '#314158', zerolinecolor: '#314158', tickfont: { color: '#64748b' } },
-  yaxis: { rangemode: 'tozero' as const, gridcolor: '#314158', zerolinecolor: '#314158', tickfont: { color: '#64748b' } },
-  margin: { t: 36, b: 44, l: 52, r: 20 },
+  xaxis: { title: { text: 'Num of Samples', font: { color: '#64748b', size: 11 } }, ...AXIS_BASE },
+  yaxis: { rangemode: 'tozero' as const, ...AXIS_BASE },
+  margin: { t: 44, b: 48, l: 60, r: 20 },
 }
 
 async function loadPlotly() {
@@ -40,6 +42,9 @@ function renderCharts() {
   const lisCum  = trendStore.lisCumulative  // 누적합 (LIS: 전체 정확도 추이)
   const tasRaw  = trendStore.tasHistory      // 회차별 원본값 (TAS: 목표 근접도 변화)
 
+  const YAXIS_LIS = { rangemode: 'tozero' as const, ...AXIS_BASE, title: { text: 'LIS', font: { color: '#64748b', size: 11 } } }
+  const YAXIS_TAS = { rangemode: 'tozero' as const, ...AXIS_BASE, title: { text: 'TAS', font: { color: '#64748b', size: 11 } } }
+
   Plotly!.react(
     lisChart.value,
     [{
@@ -50,7 +55,7 @@ function renderCharts() {
       fill: 'tozeroy', fillcolor: 'rgba(59,130,246,0.08)',
       name: 'LIS cumulative',
     }],
-    { ...DARK_LAYOUT, title: { text: 'LIS Trend', font: { color: '#e2e8f0', size: 14 } } },
+    { ...DARK_LAYOUT, title: { text: '예측 정확도 추이 (LIS)', font: { color: '#e2e8f0', size: 14 } }, yaxis: YAXIS_LIS },
     { responsive: true }
   )
 
@@ -64,7 +69,7 @@ function renderCharts() {
       fill: 'tozeroy', fillcolor: 'rgba(16,185,129,0.08)',
       name: 'TAS per experiment',
     }],
-    { ...DARK_LAYOUT, title: { text: 'TAS Trend', font: { color: '#e2e8f0', size: 14 } } },
+    { ...DARK_LAYOUT, title: { text: '목표 달성도 추이 (TAS)', font: { color: '#e2e8f0', size: 14 } }, yaxis: YAXIS_TAS },
     { responsive: true }
   )
 }

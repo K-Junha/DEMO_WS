@@ -115,7 +115,7 @@ samples:
 
   # ── S-001: 출발점. 모델 낙관적(pred≈목표), 실측은 목표와 멀다 ────────────
   - id: S-001
-    composition: "SiO2:70, Al2O3:12, B2O3:18"
+    composition: "SiO2:69.8, Al2O3:12.3, B2O3:17.9"
     predicted:
       tg: 576.2
       cte: 7.18
@@ -126,7 +126,7 @@ samples:
       cte: 11.84
       dielectric: 8.47
       dielectric_const: 5.28
-    next_composition: "SiO2:70, Al2O3:14, B2O3:16"
+    next_composition: "SiO2:70.2, Al2O3:14.1, B2O3:15.7"
     experiment:
       scale:
         target_weight: 150.0
@@ -146,7 +146,7 @@ samples:
 
   # ── S-002: 소폭 개선. 모델 여전히 낙관적 ────────────────────────────────
   - id: S-002
-    composition: "SiO2:70, Al2O3:14, B2O3:16"
+    composition: "SiO2:70.2, Al2O3:14.1, B2O3:15.7"
     predicted:
       tg: 580.5
       cte: 7.21
@@ -157,7 +157,7 @@ samples:
       cte: 11.12
       dielectric: 8.05
       dielectric_const: 4.91
-    next_composition: "SiO2:70, Al2O3:16, B2O3:14"
+    next_composition: "SiO2:69.5, Al2O3:16.2, B2O3:14.3"
     experiment:
       scale:
         target_weight: 150.0
@@ -177,7 +177,7 @@ samples:
 
   # ── S-003: 조성 방향 실패 → LIS·TAS 동반 하락 ───────────────────────────
   - id: S-003
-    composition: "SiO2:70, Al2O3:16, B2O3:14"
+    composition: "SiO2:69.5, Al2O3:16.2, B2O3:14.3"
     predicted:
       tg: 574.8
       cte: 7.16
@@ -188,7 +188,7 @@ samples:
       cte: 11.53
       dielectric: 8.31
       dielectric_const: 5.07
-    next_composition: "SiO2:70, Al2O3:18, B2O3:12"
+    next_composition: "SiO2:70.4, Al2O3:17.8, B2O3:11.8"
     experiment:
       scale:
         target_weight: 150.0
@@ -208,7 +208,7 @@ samples:
 
   # ── S-004: 모델 캘리브레이션 돌파 → LIS 0.65→0.91 급등 ─────────────────
   - id: S-004
-    composition: "SiO2:70, Al2O3:18, B2O3:12"
+    composition: "SiO2:70.4, Al2O3:17.8, B2O3:11.8"
     predicted:
       tg: 545.3
       cte: 9.12
@@ -219,7 +219,7 @@ samples:
       cte: 10.23
       dielectric: 7.62
       dielectric_const: 4.34
-    next_composition: "SiO2:70, Al2O3:20, B2O3:10"
+    next_composition: "SiO2:70.1, Al2O3:20.2, B2O3:9.7"
     experiment:
       scale:
         target_weight: 150.0
@@ -239,7 +239,7 @@ samples:
 
   # ── S-005: LIS↑(0.96) TAS↓(0.57) — 모델은 정확해졌지만 조성 성능 미달 ──
   - id: S-005
-    composition: "SiO2:70, Al2O3:20, B2O3:10"
+    composition: "SiO2:70.1, Al2O3:20.2, B2O3:9.7"
     predicted:
       tg: 512.7
       cte: 10.18
@@ -250,7 +250,7 @@ samples:
       cte: 10.61
       dielectric: 7.84
       dielectric_const: 4.53
-    next_composition: "SiO2:71, Al2O3:20, B2O3:9"
+    next_composition: "SiO2:71.3, Al2O3:19.8, B2O3:8.9"
     experiment:
       scale:
         target_weight: 150.0
@@ -270,7 +270,7 @@ samples:
 
   # ── S-006: LIS·TAS 동반 회복 ────────────────────────────────────────────
   - id: S-006
-    composition: "SiO2:71, Al2O3:20, B2O3:9"
+    composition: "SiO2:71.3, Al2O3:19.8, B2O3:8.9"
     predicted:
       tg: 538.4
       cte: 9.43
@@ -281,7 +281,7 @@ samples:
       cte: 9.08
       dielectric: 6.93
       dielectric_const: 3.62
-    next_composition: "SiO2:71, Al2O3:21, B2O3:8"
+    next_composition: "SiO2:71.6, Al2O3:21.1, B2O3:7.3"
     experiment:
       scale:
         target_weight: 150.0
@@ -301,7 +301,7 @@ samples:
 
   # ── S-007: 안정권 진입 ───────────────────────────────────────────────────
   - id: S-007
-    composition: "SiO2:71, Al2O3:21, B2O3:8"
+    composition: "SiO2:71.6, Al2O3:21.1, B2O3:7.3"
     predicted:
       tg: 558.6
       cte: 8.37
@@ -312,7 +312,7 @@ samples:
       cte: 8.43
       dielectric: 6.51
       dielectric_const: 3.17
-    next_composition: "SiO2:72, Al2O3:21, B2O3:7"
+    next_composition: "SiO2:72.2, Al2O3:20.9, B2O3:6.9"
     experiment:
       scale:
         target_weight: 150.0
@@ -332,7 +332,7 @@ samples:
 
   # ── S-008: LIS 유지, TAS 소폭 하락 ──────────────────────────────────────
   - id: S-008
-    composition: "SiO2:72, Al2O3:21, B2O3:7"
+    composition: "SiO2:72.2, Al2O3:20.9, B2O3:6.9"
     predicted:
       tg: 549.2
       cte: 8.68
@@ -343,7 +343,7 @@ samples:
       cte: 8.71
       dielectric: 6.63
       dielectric_const: 3.28
-    next_composition: "SiO2:72, Al2O3:23, B2O3:5"
+    next_composition: "SiO2:72.4, Al2O3:23.1, B2O3:4.5"
     experiment:
       scale:
         target_weight: 150.0
@@ -363,7 +363,7 @@ samples:
 
   # ── S-009: 수렴 임박 ─────────────────────────────────────────────────────
   - id: S-009
-    composition: "SiO2:72, Al2O3:23, B2O3:5"
+    composition: "SiO2:72.4, Al2O3:23.1, B2O3:4.5"
     predicted:
       tg: 569.4
       cte: 7.82
@@ -374,7 +374,7 @@ samples:
       cte: 7.84
       dielectric: 6.12
       dielectric_const: 2.87
-    next_composition: "SiO2:73, Al2O3:23, B2O3:4"
+    next_composition: "SiO2:73.2, Al2O3:22.8, B2O3:4.0"
     experiment:
       scale:
         target_weight: 150.0
@@ -394,7 +394,7 @@ samples:
 
   # ── S-010: 수렴 완료 ─────────────────────────────────────────────────────
   - id: S-010
-    composition: "SiO2:73, Al2O3:23, B2O3:4"
+    composition: "SiO2:73.2, Al2O3:22.8, B2O3:4.0"
     predicted:
       tg: 578.1
       cte: 7.23
@@ -405,7 +405,7 @@ samples:
       cte: 7.25
       dielectric: 5.84
       dielectric_const: 2.63
-    next_composition: "SiO2:73, Al2O3:24, B2O3:3"
+    next_composition: "SiO2:73.5, Al2O3:23.2, B2O3:3.3"
     experiment:
       scale:
         target_weight: 150.0
@@ -425,7 +425,7 @@ samples:
 
   # ── S-011~S-020: 수렴 이후 미세 조정 구간 (순환 시 고점 유지) ────────────
   - id: S-011
-    composition: "SiO2:73, Al2O3:24, B2O3:3"
+    composition: "SiO2:73.5, Al2O3:23.2, B2O3:3.3"
     predicted:
       tg: 579.3
       cte: 7.21
@@ -436,7 +436,7 @@ samples:
       cte: 7.19
       dielectric: 5.79
       dielectric_const: 2.59
-    next_composition: "SiO2:74, Al2O3:23, B2O3:3"
+    next_composition: "SiO2:74.1, Al2O3:22.8, B2O3:3.1"
     experiment:
       scale:
         target_weight: 150.0
@@ -455,7 +455,7 @@ samples:
         pressure: 22
 
   - id: S-012
-    composition: "SiO2:74, Al2O3:23, B2O3:3"
+    composition: "SiO2:74.1, Al2O3:22.8, B2O3:3.1"
     predicted:
       tg: 580.2
       cte: 7.20
@@ -466,7 +466,7 @@ samples:
       cte: 7.21
       dielectric: 5.81
       dielectric_const: 2.61
-    next_composition: "SiO2:73, Al2O3:24, B2O3:3"
+    next_composition: "SiO2:73.3, Al2O3:23.5, B2O3:3.2"
     experiment:
       scale:
         target_weight: 150.0
@@ -485,7 +485,7 @@ samples:
         pressure: 22
 
   - id: S-013
-    composition: "SiO2:73, Al2O3:24, B2O3:3"
+    composition: "SiO2:73.3, Al2O3:23.5, B2O3:3.2"
     predicted:
       tg: 579.8
       cte: 7.20
@@ -496,7 +496,7 @@ samples:
       cte: 7.20
       dielectric: 5.80
       dielectric_const: 2.60
-    next_composition: "SiO2:73, Al2O3:24, B2O3:3"
+    next_composition: "SiO2:73.3, Al2O3:23.5, B2O3:3.2"
     experiment:
       scale:
         target_weight: 150.0
@@ -515,7 +515,7 @@ samples:
         pressure: 22
 
   - id: S-014
-    composition: "SiO2:73, Al2O3:24, B2O3:3"
+    composition: "SiO2:73.3, Al2O3:23.5, B2O3:3.2"
     predicted:
       tg: 580.0
       cte: 7.20
@@ -526,7 +526,7 @@ samples:
       cte: 7.20
       dielectric: 5.80
       dielectric_const: 2.60
-    next_composition: "SiO2:73, Al2O3:24, B2O3:3"
+    next_composition: "SiO2:73.3, Al2O3:23.5, B2O3:3.2"
     experiment:
       scale:
         target_weight: 150.0
@@ -545,7 +545,7 @@ samples:
         pressure: 22
 
   - id: S-015
-    composition: "SiO2:73, Al2O3:24, B2O3:3"
+    composition: "SiO2:73.3, Al2O3:23.5, B2O3:3.2"
     predicted:
       tg: 580.0
       cte: 7.20
@@ -556,7 +556,7 @@ samples:
       cte: 7.20
       dielectric: 5.80
       dielectric_const: 2.60
-    next_composition: "SiO2:73, Al2O3:24, B2O3:3"
+    next_composition: "SiO2:73.3, Al2O3:23.5, B2O3:3.2"
     experiment:
       scale:
         target_weight: 150.0
@@ -575,7 +575,7 @@ samples:
         pressure: 22
 
   - id: S-016
-    composition: "SiO2:73, Al2O3:24, B2O3:3"
+    composition: "SiO2:73.3, Al2O3:23.5, B2O3:3.2"
     predicted:
       tg: 580.0
       cte: 7.20
@@ -586,7 +586,7 @@ samples:
       cte: 7.20
       dielectric: 5.80
       dielectric_const: 2.60
-    next_composition: "SiO2:73, Al2O3:24, B2O3:3"
+    next_composition: "SiO2:73.3, Al2O3:23.5, B2O3:3.2"
     experiment:
       scale:
         target_weight: 150.0
@@ -605,7 +605,7 @@ samples:
         pressure: 22
 
   - id: S-017
-    composition: "SiO2:73, Al2O3:24, B2O3:3"
+    composition: "SiO2:73.3, Al2O3:23.5, B2O3:3.2"
     predicted:
       tg: 580.0
       cte: 7.20
@@ -616,7 +616,7 @@ samples:
       cte: 7.20
       dielectric: 5.80
       dielectric_const: 2.60
-    next_composition: "SiO2:73, Al2O3:24, B2O3:3"
+    next_composition: "SiO2:73.3, Al2O3:23.5, B2O3:3.2"
     experiment:
       scale:
         target_weight: 150.0
@@ -635,7 +635,7 @@ samples:
         pressure: 22
 
   - id: S-018
-    composition: "SiO2:73, Al2O3:24, B2O3:3"
+    composition: "SiO2:73.3, Al2O3:23.5, B2O3:3.2"
     predicted:
       tg: 580.0
       cte: 7.20
@@ -646,7 +646,7 @@ samples:
       cte: 7.20
       dielectric: 5.80
       dielectric_const: 2.60
-    next_composition: "SiO2:73, Al2O3:24, B2O3:3"
+    next_composition: "SiO2:73.3, Al2O3:23.5, B2O3:3.2"
     experiment:
       scale:
         target_weight: 150.0
@@ -665,7 +665,7 @@ samples:
         pressure: 22
 
   - id: S-019
-    composition: "SiO2:73, Al2O3:24, B2O3:3"
+    composition: "SiO2:73.3, Al2O3:23.5, B2O3:3.2"
     predicted:
       tg: 580.0
       cte: 7.20
@@ -676,7 +676,7 @@ samples:
       cte: 7.20
       dielectric: 5.80
       dielectric_const: 2.60
-    next_composition: "SiO2:73, Al2O3:24, B2O3:3"
+    next_composition: "SiO2:73.3, Al2O3:23.5, B2O3:3.2"
     experiment:
       scale:
         target_weight: 150.0
@@ -695,7 +695,7 @@ samples:
         pressure: 22
 
   - id: S-020
-    composition: "SiO2:73, Al2O3:24, B2O3:3"
+    composition: "SiO2:73.3, Al2O3:23.5, B2O3:3.2"
     predicted:
       tg: 580.0
       cte: 7.20
@@ -706,7 +706,7 @@ samples:
       cte: 7.20
       dielectric: 5.80
       dielectric_const: 2.60
-    next_composition: "SiO2:73, Al2O3:24, B2O3:3"
+    next_composition: "SiO2:73.3, Al2O3:23.5, B2O3:3.2"
     experiment:
       scale:
         target_weight: 150.0
