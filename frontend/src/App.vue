@@ -109,6 +109,7 @@
 
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue'
+import { useQuasar } from 'quasar'
 import { useConfigStore } from 'src/stores/config'
 import { useExperimentStore } from 'src/stores/experiment'
 import { useTrendStore } from 'src/stores/trend'
@@ -117,6 +118,7 @@ import CompositionTable from 'src/components/CompositionTable.vue'
 import ScoreTrend from 'src/components/ScoreTrend.vue'
 import ExperimentDesignModal from 'src/components/ExperimentDesignModal.vue'
 
+const $q = useQuasar()
 const configStore = useConfigStore()
 const experimentStore = useExperimentStore()
 const trendStore = useTrendStore()
@@ -173,6 +175,20 @@ function toggleSimulation() {
     simNextStep()
   }
 }
+
+// 실험 완료 시 다음 행동 안내 토스트
+watch(() => experimentStore.state, state => {
+  if (state !== 'done') return
+  setTimeout(() => {
+    $q.notify({
+      message: '실험 완료 — Auto-Tune으로 다음 조성을 추천받거나, RESET 후 새 실험을 설계하세요.',
+      icon: 'check_circle',
+      color: 'positive',
+      position: 'bottom-right',
+      timeout: 4000,
+    })
+  }, 1700)
+})
 
 // ── 리셋 ─────────────────────────────────────────────────────────────────────
 function handleReset() {

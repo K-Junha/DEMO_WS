@@ -1,8 +1,22 @@
 <template>
   <div>
-    <div style="font-size:13px; font-weight:700; color:#94a3b8; letter-spacing:0.06em; text-transform:uppercase; margin-bottom:16px">
+    <div style="font-size:13px; font-weight:700; color:#94a3b8; letter-spacing:0.06em; text-transform:uppercase; margin-bottom:12px">
       Score Trend
     </div>
+
+    <div v-if="trendStore.lisHistory.length" class="row q-gutter-md q-mb-md">
+      <div class="score-badge">
+        <div class="score-badge-label">예측 정확도 (LIS)</div>
+        <div class="score-badge-value" :style="{ color: lisColor }">{{ lisDisplay }}%</div>
+        <div class="gauge-track"><div class="gauge-fill" :style="{ width: lisDisplay + '%', background: lisColor }" /></div>
+      </div>
+      <div class="score-badge">
+        <div class="score-badge-label">목표 달성도 (TAS)</div>
+        <div class="score-badge-value" :style="{ color: tasColor }">{{ tasDisplay }}%</div>
+        <div class="gauge-track"><div class="gauge-fill" :style="{ width: tasDisplay + '%', background: tasColor }" /></div>
+      </div>
+    </div>
+
     <div class="row" style="gap: 16px">
       <div ref="lisChart" style="flex:1; min-height:280px" />
       <div ref="tasChart" style="flex:1; min-height:280px" />
@@ -11,12 +25,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useTrendStore } from 'src/stores/trend'
 
 const trendStore = useTrendStore()
 const lisChart = ref<HTMLElement | null>(null)
 const tasChart = ref<HTMLElement | null>(null)
+
+const lisDisplay = computed(() => Math.round((trendStore.lisHistory.at(-1) ?? 0) * 100))
+const tasDisplay = computed(() => Math.round((trendStore.tasHistory.at(-1) ?? 0) * 100))
+function scoreColor(pct: number) {
+  if (pct >= 80) return '#10b981'
+  if (pct >= 60) return '#f59e0b'
+  return '#ef4444'
+}
+const lisColor = computed(() => scoreColor(lisDisplay.value))
+const tasColor = computed(() => scoreColor(tasDisplay.value))
 let Plotly: typeof import('plotly.js-basic-dist') | null = null
 
 const AXIS_BASE = { gridcolor: '#314158', zerolinecolor: '#314158', tickfont: { color: '#64748b' } }
@@ -81,3 +105,38 @@ onUnmounted(() => {
   if (Plotly && tasChart.value) Plotly.purge(tasChart.value)
 })
 </script>
+
+<style scoped>
+.score-badge {
+  flex: 1;
+  background: #1d293d;
+  border: 1px solid rgba(49, 65, 88, 0.8);
+  border-radius: 10px;
+  padding: 12px 16px;
+  min-width: 160px;
+}
+.score-badge-label {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  margin-bottom: 4px;
+}
+.score-badge-value {
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.gauge-track {
+  height: 5px;
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.gauge-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.6s ease;
+}
+</style>

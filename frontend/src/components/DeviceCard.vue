@@ -1,5 +1,5 @@
 <template>
-  <div class="device-card q-pa-sm" :class="active ? 'active' : 'inactive'" style="min-width: 175px; max-width: 210px">
+  <div class="device-card q-pa-sm" :class="[active ? 'active' : 'inactive', { processing: loading }]" style="min-width: 185px; max-width: 220px">
     <!-- Header: LED + name [space] icon -->
     <div class="row items-center q-mb-xs" style="gap: 5px">
       <span class="led" :class="active ? (device.connected ? 'green' : 'red') : 'gray'" />
@@ -142,5 +142,15 @@ const protocolClass = computed(() => PROTOCOL_CLASS[props.device.protocol] ?? 'b
 @keyframes shimmer {
   0%   { background-position: 200% 0; }
   100% { background-position: -200% 0; }
+}
+
+.device-card.processing {
+  border-color: rgba(97, 95, 255, 0.9) !important;
+  animation: pulseGlow 1.4s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(97, 95, 255, 0.4), 0 0 8px rgba(97, 95, 255, 0.2); }
+  50%       { box-shadow: 0 0 0 1px rgba(97, 95, 255, 0.9), 0 0 18px rgba(97, 95, 255, 0.5); }
 }
 </style>
